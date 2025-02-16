@@ -64,11 +64,6 @@ Ensure MongoDB is running and update the connection string in `backend/app/main.
 - Start the **backend**: `uvicorn app.main:app --reload`
 - Start the **frontend**: `npm run dev`
 
-Visit `http://localhost:3000` to access the application.
-
----
-
-For detailed documentation, refer to the `docs/` directory.
 
 
 
