@@ -17,7 +17,7 @@ ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that hel
 - **Database:** MongoDB
 - **Frontend:** React.js / Vue.js
 - **AI:** Generative AI (GPT-based) for risk reporting & scenario analysis
-- **Deployment:** AWS / GCP / Render
+- **Deployment:** AWS / GCP / Render(Future plan)
 - **Version Control:** GitHub
 
 ## Project Structure
