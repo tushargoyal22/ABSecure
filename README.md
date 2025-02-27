@@ -64,23 +64,18 @@ ABSecure/
 - Git
 
 ### Backend Setup
-```
----
 
 ### **📌 Setup Instructions for ABSecure Backend**  
 
 #### **1️⃣ Clone the Repository**
-```bash
 git clone https://github.com/tushargoyal22/ABSecure.git
 cd ABSecure
-```
+
 
 #### **2️⃣ Create a Virtual Environment (Recommended)**
-```bash
 python -m venv venv
 source venv/bin/activate  # For macOS/Linux
 venv\Scripts\activate  # For Windows
-```
 
 #### **3️⃣ Install Dependencies**
 ```bash
