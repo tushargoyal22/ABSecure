@@ -1,0 +1,15 @@
+{
+	"folders": [
+		{
+			"name": "backend",
+			"path": "."
+		},
+		{
+			"name": "ABSecure",
+			"path": "../../Users/Ipsita Dash/ABSecure"
+		}
+	],
+	"settings": {
+		"postman.settings.dotenv-detection-notification-visibility": false
+	}
+}
