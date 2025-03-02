@@ -23,7 +23,7 @@ ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that hel
 ## Project Structure
 ```
 ABSecure/
-│── ABSecure_Backend/
+│── backend
 │   │── app/
 │   │   │── config/
 │   │   │   ├── database.py  # MongoDB connection setup
@@ -40,15 +40,14 @@ ABSecure/
 │   │   │   ├── pool_service.py  # Loan pooling logic
 │   │   │
 │   │   │── main.py  # FastAPI entry point
-│   │   │── requirements.txt  # Dependencies
-│   │   │── .env  # Environment variables (MongoDB URI)
-│   │   │── .gitignore  # Ignore unnecessary files
-│   │   │── README.md  # Project documentation
+│   │── requirements.txt  # Dependencies
+│   │── .env  # Environment variables (MongoDB URI)
+│   |── .gitignore  # Ignore unnecessary files
+│   │   
 │   │
 │   │── frontend/  # Frontend UI components
 │   │── database/  # Database configuration
 │   │── docs/  # Documentation and guides
-│   │── .gitignore
 │   │── docker-compose.yml
 │   │── LICENSE
 │   │── README.md
@@ -65,21 +64,25 @@ ABSecure/
 
 ### Backend Setup
 
+
 ### **📌 Setup Instructions for ABSecure Backend**  
 
 #### **1️⃣ Clone the Repository**
+```bash
 git clone https://github.com/tushargoyal22/ABSecure.git
 cd ABSecure
-
+```
 
 #### **2️⃣ Create a Virtual Environment (Recommended)**
+```bash
 python -m venv venv
 source venv/bin/activate  # For macOS/Linux
 venv\Scripts\activate  # For Windows
+```
 
 #### **3️⃣ Install Dependencies**
 ```bash
-pip install -r requirements.txt
+pip install -r backend/requirements.txt
 ```
 
 #### **4️⃣ Install FastAPI and Uvicorn**
@@ -89,35 +92,39 @@ pip install fastapi uvicorn
 ```
 
 #### **5️⃣ Set Up Environment Variables**
-Create a `.env` file in the `ABSecure_backend/app/config` directory and add:
-```
+Create a `.env` file in the `backend/config` directory and add:
+```bash
 MONGO_URI="your_mongodb_connection_string"
 ```
 
 #### **6️⃣ Run the FastAPI Backend**
 ```bash
-uvicorn main:app --reload
+uvicorn backend.main:app --reload
 ```
 - This starts the FastAPI server on `http://127.0.0.1:8000`
 - You can access API docs at `http://127.0.0.1:8000/docs`
 
 ---
 
-```
-
-### Frontend Setup
+### **📌 Frontend Setup**
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Database Setup
-Ensure MongoDB is running and update the connection string in `backend/app/main.py`.
+### **📌 Database Setup**
+Ensure MongoDB is running and update the connection string in `backend/main.py`.
 
-### Running the Project
-- Start the **backend**: `uvicorn app.main:app --reload`
-- Start the **frontend**: `npm run dev`
+### **📌 Running the Project**
+- Start the **backend**:  
+  ```bash
+  uvicorn backend.main:app --reload
+  ```
+- Start the **frontend**:  
+  ```bash
+  npm run dev
+  ```
 
 
 
