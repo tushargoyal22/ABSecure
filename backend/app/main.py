@@ -1,38 +1,58 @@
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.exceptions import RequestValidationError
-from fastapi.responses import PlainTextResponse
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from app.routes import loan_routes,pool_routes # ✅ Import both route modules
+import logging
+from app.routes import loan_routes
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
+# ✅ Initialize FastAPI app
 app = FastAPI()
-app.include_router(pool_routes.router, prefix="/pool")
-# 🔹 Allow frontend access (Update if needed)
+
+# ✅ Include API routes
+app.include_router(loan_routes.router)
+
+# ✅ CORS Configuration (if required)
+from fastapi.middleware.cors import CORSMiddleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to ["http://localhost:3000"] if using a frontend
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ✅ Include API routes
-app.include_router(loan_routes.router)
-
-
+# ✅ Root endpoint
 @app.get("/")
 async def root():
     return {"message": "Welcome to ABSecure Backend"}
 
-# ✅ Handle HTTP exceptions properly
+# ✅ Improved Exception Handling (Returns JSON Instead of Plain Text)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-    print(f"HTTP Exception: {exc.detail}")  # Debugging print
-    return PlainTextResponse(str(exc.detail), status_code=exc.status_code)
+    logger.error(f"HTTP Exception at {request.url}: {exc.detail}")
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": exc.detail, "status_code": exc.status_code},
+    )
 
-# ✅ Handle validation errors (e.g., invalid input)
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    print(f"Validation Error: {exc.errors()}")  # Debugging print
-    return PlainTextResponse(str(exc), status_code=400)
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled Exception at {request.url}: {str(exc)}")
+    return JSONResponse(
+        status_code=500,
+        content={"error": "Internal Server Error", "detail": str(exc)},
+    )
+
+"""
+# Changes Implemented after first review:
+1. **Replaced plain text error responses with structured JSON** for consistent API responses.
+2. **Integrated logging for exception handling**, improving debugging and issue tracking.
+3. **Enhanced error handling logic**:
+   - Captures general exceptions and logs them appropriately.
+   - Logs the request URL for better traceability.
+4. **Ensured uniform response structure** across all endpoints for API reliability.
+"""
