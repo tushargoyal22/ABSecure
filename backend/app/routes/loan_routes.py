@@ -36,9 +36,11 @@ async def create_loan(loan: Loan):
         result = loan_collection.insert_one(loan_dict)
         return {"id": str(result.inserted_id)}
 
-    except DuplicateKeyError:
-        logging.warning("⚠️ Loan already exists.")
-        raise HTTPException(status_code=400, detail="Loan already exists.")
+    except DuplicateKeyError as e:
+        logging.warning(f"⚠️ Duplicate key error: {str(e)}")
+        duplicate_field = str(e.details.get('keyValue', 'unknown field'))  # Extract duplicate key field
+        raise HTTPException(status_code=400, detail=f"Duplicate key error: {duplicate_field} already exists.")
+        
     except Exception as e:
         logging.error(f"❌ Error creating loan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
@@ -55,29 +57,42 @@ async def read_loan(loan_id: str):
             logging.info(f"✅ Loan found: {loan}")
             return fix_id(loan)
 
-        logging.warning(f"⚠️ Loan with ID: {loan_id} not found")
+        logging.info(f"ℹ️ Loan with ID: {loan_id} not found")  # Changed from warning to info
         raise HTTPException(status_code=404, detail="Loan not found")
 
     except Exception as e:
         logging.error(f"❌ Error reading loan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
 
-# 🔹 UPDATE LOAN
+#🔹 UPDATE LOAN
 @router.put("/loans/{loan_id}")
 async def update_loan(loan_id: str, loan: Loan):
     try:
         logging.info(f"📌 Updating loan with ID: {loan_id}")
-        object_id = validate_object_id(loan_id)  # ✅ Validate loan_id before conversion
+
+        # ✅ Validate loan_id before conversion
+        object_id = validate_object_id(loan_id)
+
+        # ✅ Check if the loan exists before updating
+        existing_loan = loan_collection.find_one({"_id": object_id})
+        if not existing_loan:
+            logging.warning(f"⚠️ Loan with ID: {loan_id} not found")
+            raise HTTPException(status_code=404, detail="Loan not found")
+
+        # ✅ Convert loan data, excluding unset fields
         updated_loan = loan.dict(exclude_unset=True)
         logging.info(f"🔄 Updated loan data: {updated_loan}")
 
+        # ✅ Perform the update operation
         result = loan_collection.update_one({"_id": object_id}, {"$set": updated_loan})
+
         if result.modified_count > 0:
             logging.info(f"✅ Loan with ID: {loan_id} updated successfully")
             return {"msg": "Loan updated successfully"}
 
-        logging.warning(f"⚠️ Loan with ID: {loan_id} not found")
-        raise HTTPException(status_code=404, detail="Loan not found")
+        # ✅ Handle the case where no modifications were made
+        logging.info(f"⚠️ Loan with ID: {loan_id} exists but no changes were detected")
+        return {"msg": "No changes made to the loan"}
 
     except Exception as e:
         logging.error(f"❌ Error updating loan: {str(e)}")
@@ -101,7 +116,6 @@ async def delete_loan(loan_id: str):
     except Exception as e:
         logging.error(f"❌ Error deleting loan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-
 # ============================================
 #Summary of Changes:
 # ============================================
