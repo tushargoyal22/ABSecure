@@ -5,9 +5,6 @@ import logging
 from app.routes import loan_routes
 from app.routes import pool_routes  # Import pool routes
 
-
-
-
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

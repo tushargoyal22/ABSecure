@@ -42,16 +42,6 @@ def get_database():
             raise Exception("❌ MongoDB Connection Failed!")
 
     return _client["loan_database"]  # ✅ Return the `loan_database` instance
-def get_tranche_database():
-    try:
-        client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-        db = client["tranche_database"]
-        # Test connection
-        client.server_info()
-        return db
-    except ConnectionFailure as e:
-        print(f"Error: {str(e)}")
-        raise Exception(" MongoDB Connection Failed!")
 
 """
 # Changes Implemented after 1st review:

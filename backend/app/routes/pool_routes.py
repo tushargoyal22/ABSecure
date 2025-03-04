@@ -3,7 +3,7 @@ import datetime
 from fastapi import APIRouter, HTTPException
 import pandas as pd
 from bson import ObjectId
-from app.config.database import get_database, get_tranche_database
+from app.config.database import get_database
 from app.services.pool_service import allocate_tranches
 import logging
 
@@ -13,9 +13,7 @@ router = APIRouter()
 loan_db = get_database()
 loans_collection = loan_db["loans"]
 
-# Get the separate tranche database and its tranches collection.
-tranche_db = get_tranche_database()
-tranches_collection = tranche_db["tranches"]
+
 
 @router.post("/allocate")
 def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: float):
@@ -39,7 +37,10 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
     # passing investor_budget as an additional parameter.
     tranches = allocate_tranches(df, criterion, suboption, investor_budget)
     if tranches is None or all(tranche_df.empty for tranche_df in tranches.values()):
-        raise HTTPException(status_code=404, detail="No loans available for the selected criteria and budget.")
+        return {
+            "message": "No loans available for the selected criteria and budget.",
+            "tranche_details": []
+        }
 
     # Prepare and store tranche data in the separate tranche database.
     static_tranche_info = {
@@ -92,36 +93,9 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
             "investor_budget": investor_budget
         })
     
-    # Store tranche records in the separate tranche database.
-    # Remove _id from records so that MongoDB assigns new ones.
-    stored_tranches = []
-    for allocated_key, df_tr in tranches.items():
-        # Standardize key for equity if necessary.
-        key_for_storage = allocated_key
-        if allocated_key == "Equity Tranche":
-            key_for_storage = "Equity/Residual Tranche"
-        if not df_tr.empty:
-            for record in df_tr.to_dict(orient="records"):
-                if "_id" in record:
-                    del record["_id"]
-                record["Tranche"] = key_for_storage
-                
-                stored_tranches.append(record)
-    if stored_tranches:
-        tranches_collection.insert_many(stored_tranches)
     
     # Return the detailed tranche allocation information as JSON.
     return {
         "message": "Tranches allocated and stored successfully.",
         "tranche_details": tranche_details
     }
-
-@router.get("/tranches")
-def get_stored_tranches():
-    """
-    Retrieves all stored tranche allocations from the separate tranche database.
-    """
-    tranches_data = list(tranches_collection.find({}, {"_id": 0}))
-    if not tranches_data:
-        raise HTTPException(status_code=404, detail="No tranches found in the tranche database.")
-    return {"tranches": tranches_data}
