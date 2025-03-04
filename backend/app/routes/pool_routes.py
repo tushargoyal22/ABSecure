@@ -1,52 +1,127 @@
+# App/routes/pool_routes.py
+import datetime
 from fastapi import APIRouter, HTTPException
-from app.services.pool_service import group_loans
-from app.config.database import get_database  # Import the database connection
+import pandas as pd
+from bson import ObjectId
+from app.config.database import get_database, get_tranche_database
+from app.services.pool_service import allocate_tranches
 import logging
-from bson import ObjectId  
-from pymongo.errors import PyMongoError  # Import error handling for MongoDB
-
-logging.basicConfig(level=logging.INFO)
 
 router = APIRouter()
 
-# Initialize DB
-db = get_database()
+# Get the loan database and its loans collection.
+loan_db = get_database()
+loans_collection = loan_db["loans"]
 
-@router.post("/create-loan-pools/")
-async def create_loan_pools():
-    logging.info("🔹 Pooling API Triggered!")
+# Get the separate tranche database and its tranches collection.
+tranche_db = get_tranche_database()
+tranches_collection = tranche_db["tranches"]
 
-    try:
-        # ✅ Fetch only the first 100 loan entries, including only their IDs
-        loans = list(db.loans.find({}, {"_id": 1}).limit(100))  # Limit to 100 for efficiency
+@router.post("/allocate")
+def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: float):
+    """
+    Fetches loans from the loan database, pools them based on the selected criterion and suboption,
+    applies the investor_budget constraint during tranche allocation,
+    stores the tranche records in the separate tranche database,
+    and returns a summary.
+    """
+    # Fetch all loans from the loans collection.
+    loans = list(loans_collection.find({}))
+    if not loans:
+        raise HTTPException(status_code=404, detail="No loans found in the loan database.")
 
-        if not loans:
-            logging.warning("⚠️ No loan data found!")
-            raise HTTPException(status_code=404, detail="No loans found in database")
+    # Convert MongoDB records into a pandas DataFrame.
+    df = pd.DataFrame(loans)
+    if df.empty:
+        raise HTTPException(status_code=404, detail="Loan data is empty after conversion.")
 
-        # ✅ Extract loan IDs as strings
-        loan_ids = [str(loan["_id"]) for loan in loans]
+    # Call the pooling and tranche allocation function from the service,
+    # passing investor_budget as an additional parameter.
+    tranches = allocate_tranches(df, criterion, suboption, investor_budget)
+    if tranches is None or all(tranche_df.empty for tranche_df in tranches.values()):
+        raise HTTPException(status_code=404, detail="No loans available for the selected criteria and budget.")
 
-        # ✅ Pass loan IDs instead of full objects
-        result = group_loans(loan_ids)
-
-        logging.info(f"🔹 Pooling API Response: {result}")
-        return result
-
-    except PyMongoError as e:
-        logging.error(f"❌ Database error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Database error occurred. Please try again later.")
+    # Prepare and store tranche data in the separate tranche database.
+    static_tranche_info = {
+        "Senior Tranche": {
+            "Risk": "Lowest Risk",
+            "Return": "Lowest Return",
+            "Payment Priority": "First to be paid"
+        },
+        "Mezzanine Tranche": {
+            "Risk": "Moderate Risk",
+            "Return": "Moderate Return",
+            "Payment Priority": "Paid after senior tranche"
+        },
+        "Subordinated Tranche": {
+            "Risk": "High Risk",
+            "Return": "High Return",
+            "Payment Priority": "Paid after mezzanine"
+        },
+        "Equity/Residual Tranche": {
+            "Risk": "Highest Risk",
+            "Return": "Highest Return",
+            "Payment Priority": "Last to be paid (if anything is left)"
+        }
+    }
     
-    except Exception as e:
-        logging.error(f"❌ Unexpected error: {str(e)}")
-        raise HTTPException(status_code=500, detail="An unexpected error occurred.")
+    # Prepare the detailed output per tranche.
+    tranche_details = []
+    # Ensure we output all four tranche types, even if no loans were allocated.
+    for tranche_key in static_tranche_info.keys():
+        # Use the computed allocation if available, otherwise an empty DataFrame.
+        if tranche_key in tranches:
+            df_tranche = tranches[tranche_key]
+        else:
+            # For the equity tranche, our service might return "Equity Tranche" instead.
+            if "Equity Tranche" in tranches:
+                df_tranche = tranches["Equity Tranche"]
+            else:
+                df_tranche = pd.DataFrame()
 
-# ------------------------------------------------------------
-#  Changes Implemented:
-# 1️. Added database error handling using `PyMongoError` to prevent crashes.
-# 2️.Introduced `HTTPException` to return appropriate HTTP status codes:
-#    - 404 if no loans are found.
-#    - 500 for database errors or unexpected failures.
-# 3️.Limited loan retrieval to 100 records for efficiency.
-# 4️.Improved logging for debugging and issue tracking.
-# ------------------------------------------------------------
+        loans_allocated = len(df_tranche) if not df_tranche.empty else 0
+        budget_spent = float(df_tranche['LoanAmount'].sum()) if not df_tranche.empty and 'LoanAmount' in df_tranche.columns else 0.0
+        info = static_tranche_info[tranche_key]
+        tranche_details.append({
+            "tranche_name": tranche_key,
+            "risk_category": info["Risk"],
+            "return_category": info["Return"],
+            "payment_priority": info["Payment Priority"],
+            "loans_allocated": loans_allocated,
+            "budget_spent": budget_spent,
+            "investor_budget": investor_budget
+        })
+    
+    # Store tranche records in the separate tranche database.
+    # Remove _id from records so that MongoDB assigns new ones.
+    stored_tranches = []
+    for allocated_key, df_tr in tranches.items():
+        # Standardize key for equity if necessary.
+        key_for_storage = allocated_key
+        if allocated_key == "Equity Tranche":
+            key_for_storage = "Equity/Residual Tranche"
+        if not df_tr.empty:
+            for record in df_tr.to_dict(orient="records"):
+                if "_id" in record:
+                    del record["_id"]
+                record["Tranche"] = key_for_storage
+                
+                stored_tranches.append(record)
+    if stored_tranches:
+        tranches_collection.insert_many(stored_tranches)
+    
+    # Return the detailed tranche allocation information as JSON.
+    return {
+        "message": "Tranches allocated and stored successfully.",
+        "tranche_details": tranche_details
+    }
+
+@router.get("/tranches")
+def get_stored_tranches():
+    """
+    Retrieves all stored tranche allocations from the separate tranche database.
+    """
+    tranches_data = list(tranches_collection.find({}, {"_id": 0}))
+    if not tranches_data:
+        raise HTTPException(status_code=404, detail="No tranches found in the tranche database.")
+    return {"tranches": tranches_data}
