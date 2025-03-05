@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 from app.routes import loan_routes
+from app.routes import pool_routes  # Import pool routes
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +14,7 @@ app = FastAPI()
 
 # ✅ Include API routes
 app.include_router(loan_routes.router)
+app.include_router(pool_routes.router, prefix="/pool")  
 
 # ✅ CORS Configuration (if required)
 from fastapi.middleware.cors import CORSMiddleware
