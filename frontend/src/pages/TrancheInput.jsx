@@ -13,6 +13,7 @@ import { useTranche } from "../context/TrancheContext";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { useNavigate } from "react-router";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const CRITERIA = {
   Duration: ["Short-Term", "Medium-Term", "Long-Term"],
@@ -30,23 +31,27 @@ const CRITERIA = {
 };
 
 const TrancheInput = () => {
-  const navigate = useNavigate()
-  const { setCriteria, setSuboption, setBudget, setTrancheDetails } =
-    useTranche();
+  const navigate = useNavigate();
+  const { setCriteria, setSuboption, setBudget, setTrancheDetails } = useTranche();
   const [selectedCriterion, setSelectedCriterion] = useState("");
   const [selectedSubCriterion, setSelectedSubCriterion] = useState("");
   const [budget, setBudgetLocal] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const validateInputs = () => {
+    let newErrors = {};
+    if (!selectedCriterion) newErrors.criterion = "Please select a criterion.";
+    if (!selectedSubCriterion) newErrors.subCriterion = "Please select a sub-criterion.";
+    if (!budget) newErrors.budget = "Please enter a budget amount.";
+    else if (isNaN(budget) || budget <= 0) newErrors.budget = "Enter a valid positive budget amount.";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedCriterion || !selectedSubCriterion || !budget) {
-      Swal.fire({
-        icon: "warning",
-        title: "Missing Fields",
-        text: "Please select all options and enter a budget.",
-      });
-      return;
-    }
+    if (!validateInputs()) return;
 
     setCriteria(selectedCriterion);
     setSuboption(selectedSubCriterion);
@@ -63,10 +68,9 @@ const TrancheInput = () => {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/pool/allocate?criterion=${selectedCriterion}&suboption=${selectedSubCriterion}&investor_budget=${budget}`
+        `${API_URL}/pool/allocate?criterion=${selectedCriterion}&suboption=${selectedSubCriterion}&investor_budget=${budget}`
       );
-
-      console.log("Tranche Allocation Response:", response.data);
+      
       setTrancheDetails(response.data.tranche_details);
 
       Swal.fire({
@@ -98,42 +102,49 @@ const TrancheInput = () => {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-5">
-            <Select onValueChange={setSelectedCriterion}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a Criterion" />
-              </SelectTrigger>
-              <SelectContent>
-                {Object.keys(CRITERIA).map((criterion) => (
-                  <SelectItem key={criterion} value={criterion}>
-                    {criterion}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Select
-              onValueChange={setSelectedSubCriterion}
-              disabled={!selectedCriterion}
-            >
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select a Sub-Criterion" />
-              </SelectTrigger>
-              <SelectContent>
-                {selectedCriterion &&
-                  CRITERIA[selectedCriterion].map((subCriterion) => (
-                    <SelectItem key={subCriterion} value={subCriterion}>
-                      {subCriterion}
+            <div>
+              <Select onValueChange={setSelectedCriterion}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a Criterion" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(CRITERIA).map((criterion) => (
+                    <SelectItem key={criterion} value={criterion}>
+                      {criterion}
                     </SelectItem>
                   ))}
-              </SelectContent>
-            </Select>
+                </SelectContent>
+              </Select>
+              {errors.criterion && <p className="text-red-500 text-sm">{errors.criterion}</p>}
+            </div>
 
-            <Input
-              type="number"
-              placeholder="Enter Budget"
-              value={budget}
-              onChange={(e) => setBudgetLocal(e.target.value)}
-            />
+            <div>
+              <Select onValueChange={setSelectedSubCriterion} disabled={!selectedCriterion}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a Sub-Criterion" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedCriterion &&
+                    CRITERIA[selectedCriterion].map((subCriterion) => (
+                      <SelectItem key={subCriterion} value={subCriterion}>
+                        {subCriterion}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+              {errors.subCriterion && <p className="text-red-500 text-sm">{errors.subCriterion}</p>}
+            </div>
+
+            <div>
+              <Input
+                type="number"
+                placeholder="Enter Budget ($)"
+                value={budget}
+                onChange={(e) => setBudgetLocal(e.target.value)}
+                min="1"
+              />
+              {errors.budget && <p className="text-red-500 text-sm">{errors.budget}</p>}
+            </div>
 
             <Button type="submit" className="w-full">
               Allocate

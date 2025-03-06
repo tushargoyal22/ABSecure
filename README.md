@@ -45,12 +45,25 @@ ABSecure/
 │   |── .gitignore  # Ignore unnecessary files
 │   │   
 │   │
-│   │── frontend/  # Frontend UI components
+│── frontend/
+│   ├── src/
+│   │   ├── components/  # Reusable UI components
+│   │   ├── pages/  # Core pages and views
+│   │   ├── context/ # Global state management using React Context API 
+│   │   ├── hooks/ # Custom React hooks
+│   │   ├── lib/ # Utility functions and helpers
+│   │   ├── App.js  # Root component
+│   │   ├── main.jsx  # Entry point for React app
+│   ├── public/  # Static assets
+│   ├── package.json  # Frontend dependencies
+│   ├── vite.config.js  # Vite configuration for fast development
+|   |
 │   │── database/  # Database configuration
 │   │── docs/  # Documentation and guides
 │   │── docker-compose.yml
 │   │── LICENSE
 │   │── README.md
+|   |__ .gitignore # Ignore unnecessary files
 
 ```
 
@@ -106,12 +119,33 @@ uvicorn backend.main:app --reload
 
 ---
 
-### **📌 Frontend Setup**
+### 📌 Frontend Setup
+
+#### 1️⃣  Navigate to the Frontend Directory
+Ensure you're inside the project root folder. Then, navigate to the frontend directory:
 ```bash
 cd frontend
+```
+
+#### 2️⃣ Install Dependencies
+Run the following command to install all necessary dependencies listed in `package.json`:
+```bash
 npm install
+```
+
+#### 3️⃣ Set Up Environment Variables
+Copy the provided `.env.example` file and rename it as .env to configure your environment variables:
+```bash
+cp .env.example .env
+```
+
+#### 4️⃣ Run the Frontend in Development Mode 
+
+```bash
 npm run dev
 ```
+- This will launch the Vite development server.
+- By default, the app will be available at `http://localhost:5173/` .
 
 ### **📌 Database Setup**
 Ensure MongoDB is running and update the connection string in `backend/main.py`.
