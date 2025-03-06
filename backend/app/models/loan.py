@@ -51,7 +51,7 @@ class Loan(BaseModel):
     MonthlyIncome: float
     UtilityBillsPaymentHistory: float
     JobTenure: int
-    NetWorth: int  # ✅ Added missing fields
+    NetWorth: int  # Added missing fields
     BaseInterestRate: float
     InterestRate: float
     MonthlyLoanPayment: float

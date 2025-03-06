@@ -4,21 +4,21 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from pymongo.errors import ConnectionFailure
 
-# ✅ Load environment variables from .env file
+# Load environment variables from .env file
 load_dotenv()
 
-# ✅ Set up logging
+# Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ✅ Retrieve MongoDB URI from environment variables
+# Retrieve MongoDB URI from environment variables
 MONGO_URI = os.getenv("MONGO_URI")
 
-# ✅ Fail fast if MONGO_URI is missing
+# Fail fast if MONGO_URI is missing
 if not MONGO_URI:
-    raise ValueError("❌ MONGO_URI environment variable is not set. Please configure it in your .env file.")
+    raise ValueError("MONGO_URI environment variable is not set. Please configure it in your .env file.")
 
-# ✅ Log in a safe way to avoid exposing sensitive information
+# Log in a safe way to avoid exposing sensitive information
 logger.debug("MongoDB URI loaded successfully (sanitized).")
 
 #CHANGE 1: Introduced a singleton pattern for MongoDB client  
@@ -27,21 +27,21 @@ _client = None  # Global variable to hold the MongoDB client instance
 
 def get_database():
     """
-    ✅ Returns a **singleton MongoDB client instance**.
+    Returns a **singleton MongoDB client instance**.
     - Prevents creating a new connection on every function call.
     - Ensures efficient resource utilization.
     """
     global _client  # Use the global `_client` variable
 
-    if _client is None:  # ✅ Check if the client is already initialized
+    if _client is None:  # Check if the client is already initialized
         try:
-            _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # ✅ 5s timeout for connection
-            logger.info("✅ MongoDB connection established successfully.")
+            _client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)  # 5s timeout for connection
+            logger.info("MongoDB connection established successfully.")
         except ConnectionFailure as e:
-            logger.error(f"❌ MongoDB Connection Failed: {str(e)}")
-            raise Exception("❌ MongoDB Connection Failed!")
+            logger.error(f"MongoDB Connection Failed: {str(e)}")
+            raise Exception("MongoDB Connection Failed!")
 
-    return _client["loan_database"]  # ✅ Return the `loan_database` instance
+    return _client["loan_database"]  # Return the `loan_database` instance
 
 """
 # Changes Implemented after 1st review:
