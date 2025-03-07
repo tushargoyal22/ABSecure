@@ -9,14 +9,14 @@ from app.routes import pool_routes  # Import pool routes
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# ✅ Initialize FastAPI app
+# Initialize FastAPI app
 app = FastAPI()
 
-# ✅ Include API routes
+# Include API routes
 app.include_router(loan_routes.router)
 app.include_router(pool_routes.router, prefix="/pool")  
 
-# ✅ CORS Configuration (if required)
+# CORS Configuration (if required)
 from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
@@ -27,12 +27,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Root endpoint
+# Root endpoint
 @app.get("/")
 async def root():
     return {"message": "Welcome to ABSecure Backend"}
 
-# ✅ Improved Exception Handling (Returns JSON Instead of Plain Text)
+# Improved Exception Handling (Returns JSON Instead of Plain Text)
 @app.exception_handler(StarletteHTTPException)
 async def http_exception_handler(request: Request, exc: StarletteHTTPException):
     logger.error(f"HTTP Exception at {request.url}: {exc.detail}")

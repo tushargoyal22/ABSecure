@@ -158,3 +158,4 @@ def allocate_tranches(df: pd.DataFrame, criterion: str, suboption: str, investor
         print(f"{tranche}: {len(filtered_loans)} loans selected, Total Amount: {total_amount} (Budget: {investor_budget})")
 
     return selected_loans_per_tranche
+    

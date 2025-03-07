@@ -16,4 +16,4 @@ def get_database():
         client.server_info()
         return db
     except ConnectionFailure:
-        raise Exception("❌ MongoDB Connection Failed!")
+        raise Exception("MongoDB Connection Failed!")
