@@ -159,11 +159,3 @@ Ensure MongoDB is running and update the connection string in `backend/main.py`.
   ```bash
   npm run dev
   ```
-
-
-
-
-
-
-
-
