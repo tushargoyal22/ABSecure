@@ -1,0 +1,11 @@
+# Ignore the virtual environment directory
+venv/
+.venv/
+
+# Other files and directories to ignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+backend/backend.code-workspace
