@@ -19,6 +19,8 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
 from flask import Flask, request, jsonify
 
+MODEL_FILE = "loan_risk_model.pkl"
+
 def setup_logging():
     logging.basicConfig(stream=sys.stdout)
     #logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -61,7 +63,7 @@ def train_model(df):
     r2 = r2_score(y_test, y_pred)
     logging.info(f"Model Performance - MSE: {mse}, R2: {r2}")
 
-    joblib.dump(model, "loan_risk_model.pkl")
+    joblib.dump(model, MODEL_FILE)
     logging.info("Model saved successfully.")
     print("Model saved successfully.")
     return model
@@ -74,17 +76,17 @@ def load_model(model_pkl):
         return None
 
 def get_risk_score(model_pkl, input_data):
-  try:
-      model = joblib.load(model_pkl)
-      prediction = model.predict(input_data)
-      return prediction
-  except Exception as e:
-      logging.error(f"ERROR OCCURED: {e}")
-      return None
+    try:
+        model = joblib.load(model_pkl)
+        prediction = model.predict(input_data)
+        return prediction
+    except Exception as e:
+        logging.error(f"ERROR OCCURED: {e}")
+        return None
 
-def get_updated_dataset(raw_data,predictions):
-  raw_data['Predicted_RiskScore'] = predictions  # Add a new column for predictions
-  return raw_data
+def get_updated_dataset(raw_data, predictions):
+    raw_data['Predicted_RiskScore'] = predictions  # Add a new column for predictions
+    return raw_data
 
 if __name__ == "__main__":
     setup_logging()
@@ -103,10 +105,42 @@ if __name__ == "__main__":
         print(predictions)
         updated_dataset = get_updated_dataset(sample_input, predictions)
         print(updated_dataset.head())
+
+def load_ml_risk_scores(df: pd.DataFrame):
+    """
+    Preprocesses the input DataFrame and returns the ML predicted risk scores.
+    It reuses the preprocess_data and get_risk_score functions.
+    """
+    logging.info("Starting ML risk score prediction.")
+
+    # If the model file doesn't exist, train the model.
+    if not os.path.exists(MODEL_FILE):
+        logging.info(f"Model file {MODEL_FILE} not found, training model...")
+        sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval")
+        if sample_input is not None:
+            train_model(sample_input)
+        else:
+            logging.error("Failed to load dataset to train the model.")
+            return None
+
+    # Preprocess a copy of the DataFrame.
+    df_processed = preprocess_data(df.copy())
+
+    # Remove the 'RiskScore' column so that only the input features remain.
+    if 'RiskScore' in df_processed.columns:
+        df_processed = df_processed.drop(columns=['RiskScore'])
+        logging.info("Dropped 'RiskScore' column from processed data.")
+
+    # Explicitly drop any column named '_id' to match the training features.
+    df_processed = df_processed.loc[:, ~df_processed.columns.str.match(r'^_id$')]
+    if '_id' in df.columns:
+        logging.info("Dropped '_id' column from processed data.")
+
+    predictions = get_risk_score(MODEL_FILE, df_processed)
+
+    if predictions is not None:
+        logging.info("Successfully obtained risk score predictions.")
     else:
-        logging.error("Failed to load dataset.")
+        logging.error("Risk score predictions returned None.")
 
-
-
-
-
+    return predictions
