@@ -2,9 +2,11 @@
 import datetime
 from fastapi import APIRouter, HTTPException
 import pandas as pd
+import numpy as np
 from bson import ObjectId
 from app.config.database import get_database
 from app.services.pool_service import allocate_tranches
+from app.ml.risk_model import load_ml_risk_scores, get_updated_dataset
 import logging
 
 router = APIRouter()
@@ -35,6 +37,12 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
 
     # Call the pooling and tranche allocation function from the service,
     # passing investor_budget as an additional parameter.
+    predictions = load_ml_risk_scores(df)
+    if predictions is None:
+        raise HTTPException(status_code=500, detail="Risk score predictions failed.")
+    df = get_updated_dataset(df, predictions)
+
+    logging.info(f"DataFrame columns after update: {df.columns.tolist()}")
     tranches = allocate_tranches(df, criterion, suboption, investor_budget)
     if tranches is None or all(tranche_df.empty for tranche_df in tranches.values()):
         return {
@@ -59,7 +67,7 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
             "Return": "High Return",
             "Payment Priority": "Paid after mezzanine"
         },
-        "Equity/Residual Tranche": {
+        "Equity Tranche": {
             "Risk": "Highest Risk",
             "Return": "Highest Return",
             "Payment Priority": "Last to be paid (if anything is left)"
