@@ -1,5 +1,4 @@
-from pydantic import BaseModel, GetJsonSchemaHandler, Field
-from pydantic.json_schema import JsonSchemaValue
+from pydantic import BaseModel, Field
 from typing import Optional
 from bson import ObjectId
 
@@ -14,50 +13,45 @@ class PyObjectId(str):
             raise ValueError("Invalid ObjectId")
         return str(v)  # Convert ObjectId to string for JSON response
 
-    @classmethod
-    def __get_pydantic_json_schema__(
-        cls, schema: JsonSchemaValue, handler: GetJsonSchemaHandler
-    ) -> JsonSchemaValue:
-        return {"type": "string"}  # Ensure OpenAPI schema treats ObjectId as a string
-
 class Loan(BaseModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     ApplicationDate: str
     Age: int
     AnnualIncome: int
     CreditScore: int
-    EmploymentStatus: str
-    EducationLevel: str
-    Experience: int
     LoanAmount: int
     LoanDuration: int
-    MaritalStatus: str
-    NumberOfDependents: int
-    HomeOwnershipStatus: str
-    MonthlyDebtPayments: int
-    CreditCardUtilizationRate: float
-    NumberOfOpenCreditLines: int
-    NumberOfCreditInquiries: int
-    DebtToIncomeRatio: float
-    BankruptcyHistory: int
-    LoanPurpose: str
-    PreviousLoanDefaults: int
-    PaymentHistory: int
-    LengthOfCreditHistory: int
     SavingsAccountBalance: int
     CheckingAccountBalance: int
-    TotalAssets: int
-    TotalLiabilities: int
-    MonthlyIncome: float
-    UtilityBillsPaymentHistory: float
-    JobTenure: int
-    NetWorth: int  # Added missing fields
-    BaseInterestRate: float
-    InterestRate: float
-    MonthlyLoanPayment: float
-    TotalDebtToIncomeRatio: float
-    LoanApproved: int
-    RiskScore: int
+    MonthlyIncome: int
+    MonthlyLoanPayment: int
+    DebtToIncomeRatio: int
+    TotalDebtToIncomeRatio: int
+    NumberOfOpenCreditLines: int
+    NumberOfCreditInquiries: int
+    LengthOfCreditHistory: int
+    NumberOfDependents: int
+    PreviousLoanDefaults: int
+    BankruptcyHistory: int
+    RiskScore: Optional[int] = None  # ML model will assign this value if not provided
+
+    EmploymentStatus: Optional[str] = None
+    EducationLevel: Optional[str] = None
+    Experience: Optional[int] = None
+    MaritalStatus: Optional[str] = None
+    HomeOwnershipStatus: Optional[str] = None
+    MonthlyDebtPayments: Optional[int] = None
+    CreditCardUtilizationRate: Optional[float] = None
+    LoanPurpose: Optional[str] = None
+    PaymentHistory: Optional[int] = None
+    TotalAssets: Optional[int] = None
+    TotalLiabilities: Optional[int] = None
+    UtilityBillsPaymentHistory: Optional[float] = None
+    JobTenure: Optional[int] = None
+    NetWorth: Optional[int] = None  
+    BaseInterestRate: Optional[float] = None
+    InterestRate: Optional[float] = None
+    LoanApproved: Optional[int] = None
 
     class Config:
         json_schema_extra = {
@@ -66,37 +60,19 @@ class Loan(BaseModel):
                 "Age": 30,
                 "AnnualIncome": 50000,
                 "CreditScore": 700,
-                "EmploymentStatus": "Employed",
-                "EducationLevel": "Bachelor",
-                "Experience": 5,
                 "LoanAmount": 10000,
-                "LoanDuration": 24,
-                "MaritalStatus": "Single",
-                "NumberOfDependents": 0,
-                "HomeOwnershipStatus": "Rent",
-                "MonthlyDebtPayments": 500,
-                "CreditCardUtilizationRate": 0.3,
-                "NumberOfOpenCreditLines": 2,
-                "NumberOfCreditInquiries": 1,
-                "DebtToIncomeRatio": 0.4,
-                "BankruptcyHistory": 0,
-                "LoanPurpose": "Personal",
-                "PreviousLoanDefaults": 0,
-                "PaymentHistory": 12,
-                "LengthOfCreditHistory": 6,
-                "SavingsAccountBalance": 5000,
+                "LoanDuration": 12,
+                "SavingsAccountBalance": 2000,
                 "CheckingAccountBalance": 1000,
-                "TotalAssets": 50000,
-                "TotalLiabilities": 10000,
                 "MonthlyIncome": 4000,
-                "UtilityBillsPaymentHistory": 0.9,
-                "JobTenure": 3,
-                "NetWorth": 40000,
-                "BaseInterestRate": 3.5,
-                "InterestRate": 5.0,
-                "MonthlyLoanPayment": 450,
-                "TotalDebtToIncomeRatio": 0.35,
-                "LoanApproved": 1,
-                "RiskScore": 750
+                "MonthlyLoanPayment": 500,
+                "DebtToIncomeRatio": 30,
+                "TotalDebtToIncomeRatio": 35,
+                "NumberOfOpenCreditLines": 3,
+                "NumberOfCreditInquiries": 2,
+                "LengthOfCreditHistory": 5,
+                "NumberOfDependents": 1,
+                "PreviousLoanDefaults": 0,
+                "BankruptcyHistory": 0
             }
         }
