@@ -17,7 +17,7 @@ import kagglehub
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.metrics import mean_squared_error, r2_score
-from flask import Flask, request, jsonify
+
 
 MODEL_FILE = "loan_risk_model.pkl"
 
@@ -25,16 +25,35 @@ def setup_logging():
     logging.basicConfig(stream=sys.stdout)
     #logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def load_data(data_path):
+def load_data(data_path, file_name):
     try:
+        # Download dataset
         path = kagglehub.dataset_download(data_path)
+        
         logging.info(f"Path to dataset files: {path}")
+        
+        # Check if directory exists
+        if not os.path.exists(path):
+            logging.error(f"Dataset path {path} does not exist.")
+            return None
+        
         logging.info(f"Files in dataset: {os.listdir(path)}")
-        df = pd.read_csv(os.path.join(path, "Loan.csv"))
+        
+        # Construct file path
+        file_path = os.path.join(path, file_name)
+        
+        # Check if file exists
+        if not os.path.exists(file_path):
+            logging.error(f"File {file_name} not found in dataset")
+            return None
+        
+        # Load dataset
+        df = pd.read_csv(file_path)
         logging.info("Dataset loaded successfully.")
         return df
+    
     except Exception as e:
-        logging.error(f"Error loading dataset: {e}")
+        logging.error(f"Error loading dataset: {str(e)}", exc_info=True)
         return None
 
 def preprocess_data(df):
@@ -65,7 +84,7 @@ def train_model(df):
 
     joblib.dump(model, MODEL_FILE)
     logging.info("Model saved successfully.")
-    print("Model saved successfully.")
+    
     return model
 
 def load_model(model_pkl):
@@ -84,13 +103,30 @@ def get_risk_score(model_pkl, input_data):
         logging.error(f"ERROR OCCURED: {e}")
         return None
 
+import logging
+
 def get_updated_dataset(raw_data, predictions):
-    raw_data['Predicted_RiskScore'] = predictions  # Add a new column for predictions
-    return raw_data
+    try:
+        logging.info("Updating dataset with predictions.")
+        
+        # Check if raw_data and predictions have the same length
+        if len(raw_data) != len(predictions):
+            logging.error("Length mismatch: raw_data and predictions must have the same number of rows.")
+            return None
+        
+        raw_data['Predicted_RiskScore'] = predictions  # Add a new column for predictions
+        logging.info("Dataset updated successfully with predictions.")
+        
+        return raw_data
+    
+    except Exception as e:
+        logging.error(f"Error updating dataset: {str(e)}", exc_info=True)
+        return None
+
 
 if __name__ == "__main__":
     setup_logging()
-    sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval")
+    sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval","Loan.csv")
     model_pkl="loan_risk_model.pkl"
 
     if not os.path.exists(model_pkl):
@@ -116,7 +152,7 @@ def load_ml_risk_scores(df: pd.DataFrame):
     # If the model file doesn't exist, train the model.
     if not os.path.exists(MODEL_FILE):
         logging.info(f"Model file {MODEL_FILE} not found, training model...")
-        sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval")
+        sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval",'Loan.csv')
         if sample_input is not None:
             train_model(sample_input)
         else:
