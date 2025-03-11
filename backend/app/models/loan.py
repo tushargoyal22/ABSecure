@@ -33,9 +33,9 @@ class Loan(BaseModel):
     NumberOfDependents: int
     PreviousLoanDefaults: int
     BankruptcyHistory: int
-    RiskScore: Optional[int] = None  # ML model will assign this value if not provided
-
-    EmploymentStatus: Optional[str] = None
+    EmploymentStatus: str  
+    
+    RiskScore: Optional[int] = None  # ML model will assign this value if not provided during pooling/tranching
     EducationLevel: Optional[str] = None
     Experience: Optional[int] = None
     MaritalStatus: Optional[str] = None
@@ -73,6 +73,7 @@ class Loan(BaseModel):
                 "LengthOfCreditHistory": 5,
                 "NumberOfDependents": 1,
                 "PreviousLoanDefaults": 0,
-                "BankruptcyHistory": 0
+                "BankruptcyHistory": 0,
+                "EmploymentStatus": "Employed"  # Required field now included in the example
             }
         }
