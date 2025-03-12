@@ -162,17 +162,14 @@ Ensure MongoDB is running and update the connection string in `backend/main.py`.
 
 # MongoDB Seeding Script (`seed.py`)
 
-This script imports financial loan data from a CSV file into a MongoDB database.
+The seed.py script is responsible for populating the database by importing financial loan data from a CSV file into MongoDB .
 
 ## Prerequisites
 Before running the script, ensure you have:
 - **Python 3.x** installed  
-- Required dependencies:
-
+- Required dependencies:Can be installed using:
   ```bash
-  pip install pandas pymongo dnspython
- 
-
+  pip install -r requirements.txt
 
 ## Requirements
 - A running **MongoDB Atlas or Local MongoDB instance**  
@@ -213,7 +210,5 @@ python backend/seed.py
   - Check that your **MONGO_URI** in `seed.py` is correct.  
   - Make sure your IP is whitelisted in MongoDB Atlas.  
 
-- **Duplicate records?**  
-  - The script **automatically skips duplicates** based on the `_id` field.  
-  - If you want to **force insert all records**, modify the script to remove duplicate checks.  
+
 
