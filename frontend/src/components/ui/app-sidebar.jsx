@@ -40,7 +40,7 @@ const data = {
     // },
     {
       title: "Tranche Allocation",
-      url: "/tranche-input",
+      url: "/tranche",
       items: [
         { title: "Input Criteria", url: "/tranche-input" },
         { title: "Allocation Results", url: "/tranche-result" }
@@ -74,7 +74,7 @@ export function AppSidebar({ ...props }) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <ShieldCheck className="size-4" />
                 </div>
