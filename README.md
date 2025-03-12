@@ -28,6 +28,10 @@ ABSecure/
 │   │   │── config/
 │   │   │   ├── database.py  # MongoDB connection setup
 │   │   │
+│   │   │── ml/
+│   │   │   │── risk_model.py   # ML model
+│   │   │   │── loan_risk_model.pkl  # pickle file
+│   │   │
 │   │   │── models/
 │   │   │   ├── loan.py  # Loan schema using Pydantic
 │   │   │   ├── pool.py  # Loan Pool schema
@@ -66,6 +70,34 @@ ABSecure/
 |   |__ .gitignore # Ignore unnecessary files
 
 ```
+## Dataset Details
+The ABSecure system leverages the [Financial Risk for Loan Approval](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval) dataset from Kaggle. This dataset provides a rich set of financial, credit, and demographic details on loan applicants and is crucial for:
+
+- **Assessing Loan Risk:**  
+  Predicting a **RiskScore** for each loan using a machine learning (Random Forest) model that integrates multiple financial metrics and is used in tranching of loans.
+- **Loan Pooling & Tranche Allocation:**  
+  Grouping loans based on dynamic criteria chosen by the user—such as duration, creditworthiness, liquidity, and debt metrics—to create investment tranches.  
+  *For example:*  
+  - **Pooling by Duration:** If a user selects the pooling option **Duration** with the suboption **Short-Term**, the system filters the dataset to include only loans with a duration of 12 months or less.  
+  - **Pooling by Creditworthiness:** If a user opts for pooling by **Creditworthiness** with the suboption **Excellent**, then only loans that satisfy the defined excellent criteria (e.g., meeting specified thresholds for CreditScore, LengthOfCreditHistory, and other relevant metrics) are grouped together.
+
+### Key Attributes
+- **Applicant Info:**  
+  • ApplicationDate, Age, EmploymentStatus, EducationLevel, Experience, MaritalStatus, NumberOfDependents
+
+- **Financial Data:**  
+  • AnnualIncome, MonthlyIncome, SavingsAccountBalance, CheckingAccountBalance, NetWorth
+
+- **Credit & Debt Metrics:**  
+  • CreditScore, LengthOfCreditHistory, NumberOfOpenCreditLines, NumberOfCreditInquiries, DebtToIncomeRatio, TotalDebtToIncomeRatio, BankruptcyHistory, PreviousLoanDefaults, PaymentHistory, CreditCardUtilizationRate
+
+- **Loan Details:**  
+  • LoanAmount, LoanDuration, LoanPurpose, BaseInterestRate, InterestRate, MonthlyLoanPayment
+
+- **Target Variable(IN ML):**  
+  • RiskScore
+
+This dataset underpins our machine learning model, which calculates a RiskScore that informs our dynamic pooling logic and subsequent ABS tranche creation.
 
 ## Getting Started
 

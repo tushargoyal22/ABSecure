@@ -4,6 +4,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 from app.routes import loan_routes
 from app.routes import pool_routes  # Import pool routes
+from app.config.database import initialize_default_thresholds
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -12,7 +13,12 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI()
 
-# Include API routes
+# ✅ Include API routes
+@app.on_event("startup")
+def startup_event():
+    initialize_default_thresholds()
+
+
 app.include_router(loan_routes.router)
 app.include_router(pool_routes.router, prefix="/pool")  
 

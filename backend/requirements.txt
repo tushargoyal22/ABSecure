@@ -5,3 +5,8 @@ pymongo
 python-dotenv
 pandas
 numpy
+joblib
+kagglehub
+scikit-learn
+logging
+
