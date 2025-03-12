@@ -1,63 +1,60 @@
-# %%
-pip install pandas pymongo dnspython
-
-# %%
+import os
 import pandas as pd
-
-# 🔹 Load CSV File
-csv_file_path = r"C:\DE-Shaw(Project)\Loan.csv"  # Update with actual path
-df = pd.read_csv(csv_file_path)
-
-# 🔹 Convert DataFrame to JSON (Records Format)
-json_file_path = "financial_risk_data.json"
-df.to_json(json_file_path, orient="records", lines=True)
-
-print(f"CSV converted to JSON successfully! Saved as {json_file_path}")
-
-
-# %%
 import json
+import tempfile
 from pymongo import MongoClient
-from bson import ObjectId  # Required to handle MongoDB ObjectId
+from dotenv import load_dotenv
 
-# 🔹 Step 1: Connect to MongoDB Atlas
-MONGO_URI = "mongodb+srv://admin:admin@cluster0.irqpl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"  
-client = MongoClient(MONGO_URI)
-db = client["loan_database"]  # Database Name
-collection = db["loans"]  # Collection Name
+# Load environment variables from .env file
+load_dotenv()
+MONGO_URI = os.getenv("MONGO_URI")  # MongoDB connection string
+CSV_FILE = os.getenv("CSV_FILE", "Loan.csv")  # Default CSV file path if not set in .env
 
-# 🔹 Step 2: Load JSON File
-json_file_path = r"C:\DE-Shaw(Project)\financial_risk_data.json"  
-with open(json_file_path, "r") as file:
-    data = [json.loads(line) for line in file]  # Read each JSON line separately
+# Step 1: Read CSV File
+try:
+    df = pd.read_csv(CSV_FILE)
+    print(f"Loaded CSV file: {CSV_FILE}")
+except FileNotFoundError:
+    print(f"Error: CSV file {CSV_FILE} not found.")
+    exit(1)
 
-# 🔹 Step 3: Insert Only New Records (Avoiding Duplicates)
-new_entries = []
-skipped_entries = 0  # Count invalid records
+# Step 2: Convert CSV Data to JSON and store in a temporary file
+with tempfile.NamedTemporaryFile(delete=False, suffix=".json") as temp_json:
+    temp_json_path = temp_json.name  # Get temporary file path
+    df.to_json(temp_json_path, orient="records", lines=True)
+    print(f"Converted CSV to JSON: {temp_json_path}")
 
-for entry in data:
-    if "_id" in entry and "$oid" in entry["_id"]:  
-        mongo_id = ObjectId(entry["_id"]["$oid"])  # Convert to MongoDB ObjectId
-        if not collection.find_one({"_id": mongo_id}):  # Check for existing record
-            entry["_id"] = mongo_id  # Set _id correctly
-            new_entries.append(entry)
-        else:
-            skipped_entries += 1  # Count duplicates
+# Step 3: Connect to MongoDB
+try:
+    client = MongoClient(MONGO_URI)  # Establish a connection to MongoDB
+    db = client["loan_database"]  # Specify the database name
+    collection = db["loans"]  # Specify the collection name
+    print("Connected to MongoDB")
+except Exception as e:
+    print(f"Error connecting to MongoDB: {e}")
+    exit(1)
 
-# 🔹 Step 4: Insert Data
-if new_entries:
-    collection.insert_many(new_entries)  # Insert only new records
-    print(f"Inserted {len(new_entries)} new records into MongoDB Atlas successfully!")
-else:
-    print(" No new records to insert. All entries already exist.")
+# Step 4: Insert Data into MongoDB
+try:
+    with open(temp_json_path, "r") as file:
+        data = [json.loads(line) for line in file]  # Read JSON file line by line
 
-if skipped_entries:
-    print(f" Skipped {skipped_entries} duplicate records based on '_id'.")
+    # OPTIONAL: If you want to define a custom `_id`, uncomment the following lines:
+    # for entry in data:
+    #     entry["_id"] = f"{entry['ApplicationDate']}_{entry['Age']}"
 
+    if data:
+        collection.insert_many(data)  # Directly insert the data
+        print(f"Inserted {len(data)} records into MongoDB.")
+    else:
+        print("No records found in the JSON file.")
 
+except Exception as e:
+    print(f"Error inserting data into MongoDB: {e}")
 
-# %%
-for record in collection.find().limit(5):  # Show 5 records
-    print(record)
-
-
+# Step 5: Cleanup Temporary JSON File
+try:
+    os.remove(temp_json_path)  # Delete the temporary file after use
+    print(f"Deleted temporary file: {temp_json_path}")
+except Exception as e:
+    print(f"Warning: Unable to delete temporary file: {e}")
