@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Sun, Moon, Star } from "lucide-react";
 import { Link } from "react-router";
+import { pricingPlans, testimonials } from "../constants/config";
 
 const Homepage = () => {
   const [darkMode, setDarkMode] = useState(true);
@@ -48,18 +49,12 @@ const Homepage = () => {
         <section className="py-16 mt-16 w-full rounded-2xl shadow-lg">
           <h2 className="text-3xl font-bold text-center">Pricing Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 px-8">
-            {['Basic', 'Pro', 'Enterprise'].map((plan, idx) => (
-              <Card key={plan} className="p-4 hover:scale-105 transition-transform duration-300">
+            {pricingPlans.map((plan, idx) => (
+              <Card key={idx} className="p-4 hover:scale-105 transition-transform duration-300">
                 <CardContent>
-                  <h3 className="text-xl font-bold">{plan} Plan</h3>
-                  <p className="text-sm mt-2">
-                    {plan === 'Basic' ? 'Perfect for beginners.' : 
-                    plan === 'Pro' ? 'Advanced insights and premium features.' : 
-                    'Complete analytics for financial firms.'}
-                  </p>
-                  <p className="font-bold mt-4">
-                    {plan === 'Enterprise' ? 'Contact Us' : `$${idx * 20 + 10}/month`}
-                  </p>
+                  <h3 className="text-xl font-bold">{plan.name} Plan</h3>
+                  <p className="text-sm mt-2">{plan.description}</p>
+                  <p className="font-bold mt-4">{plan.price}</p>
                 </CardContent>
               </Card>
             ))}
@@ -69,10 +64,7 @@ const Homepage = () => {
         <section className="text-center py-16 mt-16">
           <h2 className="text-3xl font-bold">Testimonials</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-8 mt-8">
-            {[
-              { quote: "ABSecure transformed the way I manage my investments.", name: "Alex Thompson" },
-              { quote: "A must-have platform for anyone serious about ABS.", name: "Priya Mehta" },
-            ].map((testimonial, idx) => (
+            {testimonials.map((testimonial, idx) => (
               <Card key={idx} className="p-4">
                 <CardContent>
                   <p className="italic">"{testimonial.quote}"</p>

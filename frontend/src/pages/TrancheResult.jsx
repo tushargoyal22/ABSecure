@@ -241,7 +241,7 @@ const TrancheAllocationResult = () => {
                       />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <ReTooltip />
                 </PieChart>
               </ResponsiveContainer>
             </div>
