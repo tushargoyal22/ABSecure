@@ -1,18 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { useTranche } from "../context/TrancheContext";
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+} from "@/components/ui/dialog";
+import { useTranche } from "@/context/TrancheContext";
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
+  Tooltip as ReTooltip,
   Legend,
   ResponsiveContainer,
   PieChart,
@@ -20,10 +26,12 @@ import {
   Cell,
 } from "recharts";
 import { useNavigate } from "react-router";
+import {  HelpCircle } from "lucide-react";
 
 const TrancheAllocationResult = () => {
   const navigate = useNavigate();
   const { criteria, suboption, budget, trancheDetails } = useTranche();
+  const [isTrancheInfoOpen, setIsTrancheInfoOpen] = useState(false);
 
   if (
     !criteria ||
@@ -33,16 +41,13 @@ const TrancheAllocationResult = () => {
     trancheDetails.length === 0
   ) {
     return (
-      <div className="text-center text-gray-500 text-lg font-medium flex flex-col items-center">
-        No allocation data available. Please allocate tranches first.
-        <div className="mt-8 flex justify-center">
-          <Button
-            className=" px-4 py-2"
-            onClick={() => navigate("/tranche-input")}
-          >
-            Enter Criterion
-          </Button>
-        </div>
+      <div className="flex flex-col items-center justify-center min-h-screen text-center">
+        <p className="text-lg text-gray-600 dark:text-gray-300">
+          No allocation data available. Please allocate tranches first.
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/tranche-input")}>
+          Enter Criterion
+        </Button>
       </div>
     );
   }
@@ -60,13 +65,14 @@ const TrancheAllocationResult = () => {
   const COLORS = ["#4CAF50", "#FF9800", "#F44336", "#9C27B0"];
 
   return (
-    <div className="flex flex-col items-center p-8 space-y-8 min-h-screen">
-      <Card className="w-full max-w-4xl shadow-xl rounded-xl bg-white dark:bg-gray-800 p-6">
-        <CardHeader className="border-b pb-4">
+    <div className="flex flex-col items-center p-6 space-y-8 min-h-screen bg-gray-100 dark:bg-gray-900">
+      <Card className="w-full max-w-4xl shadow-xl rounded-2xl bg-white dark:bg-gray-800 p-6">
+        <CardHeader className="border-b pb-4 flex justify-between items-center">
           <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-200">
             Tranche Allocation Summary
           </CardTitle>
         </CardHeader>
+
         <CardContent>
           <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-sm">
             <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
@@ -98,12 +104,64 @@ const TrancheAllocationResult = () => {
           <table className="w-full text-left border-collapse mt-4 bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden">
             <thead>
               <tr className="bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                <th className="p-3">Tranche</th>
-                <th className="p-3">Risk</th>
-                <th className="p-3">Return</th>
+                <th className="p-3">
+                  Tranche{" "}
+                  <Dialog
+                    open={isTrancheInfoOpen}
+                    onOpenChange={setIsTrancheInfoOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <HelpCircle
+                          size={24}
+                          className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                        />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <h3 className="text-xl font-semibold">
+                          What are Tranches?
+                        </h3>
+                      </DialogHeader>
+                      <p className="text-gray-600 dark:text-gray-300">
+                        Tranches are different portions of an investment with
+                        varying risk, return, and priority. Senior tranches are
+                        paid first but have lower returns, while junior tranches
+                        offer higher returns with more risk.
+                      </p>
+                      <Button onClick={() => navigate("/tranche")}>
+                        Learn More
+                      </Button>
+                    </DialogContent>
+                  </Dialog>
+                </th>
+                <th className="p-3">
+                  <Tooltip>
+                    <TooltipTrigger>Risk</TooltipTrigger>
+                    <TooltipContent>
+                      Higher risk can mean higher returns.
+                    </TooltipContent>
+                  </Tooltip>
+                </th>
+                <th className="p-3">
+                  <Tooltip>
+                    <TooltipTrigger>Return</TooltipTrigger>
+                    <TooltipContent>
+                      Potential return based on tranche type.
+                    </TooltipContent>
+                  </Tooltip>
+                </th>
                 <th className="p-3">Loans Allocated</th>
                 <th className="p-3">Amount</th>
-                <th className="p-3">Priority</th>
+                <th className="p-3">
+                  <Tooltip>
+                    <TooltipTrigger>Priority</TooltipTrigger>
+                    <TooltipContent>
+                      Senior tranches are paid first.
+                    </TooltipContent>
+                  </Tooltip>
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -147,7 +205,7 @@ const TrancheAllocationResult = () => {
                 >
                   <XAxis dataKey="name" tick={{ fill: "#4A5568" }} />
                   <YAxis tick={{ fill: "#4A5568" }} />
-                  <Tooltip
+                  <ReTooltip
                     contentStyle={{ backgroundColor: "#fff", color: "#000" }}
                     wrapperStyle={{ borderRadius: "8px" }}
                   />
@@ -183,13 +241,16 @@ const TrancheAllocationResult = () => {
                       />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <ReTooltip />
                 </PieChart>
               </ResponsiveContainer>
             </div>
           </div>
 
-          <div className="mt-8 flex ">
+          <div className="mt-8 flex justify-between">
+            <Button variant="outline" onClick={() => navigate("/tranche")}>
+              Learn More about Tranches
+            </Button>
             <Button onClick={() => navigate("/tranche-input")}>
               Modify Allocation
             </Button>
