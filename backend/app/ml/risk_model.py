@@ -130,6 +130,7 @@ if __name__ == "__main__":
     model_pkl="loan_risk_model.pkl"
 
     if not os.path.exists(model_pkl):
+      logging.info("No pickle file found")
       train_model(sample_input)
     #model=load_model(model_pkl)
 
@@ -140,7 +141,7 @@ if __name__ == "__main__":
         predictions=get_risk_score(model_pkl, sample_input1)
         print(predictions)
         updated_dataset = get_updated_dataset(sample_input, predictions)
-        print(updated_dataset.head())
+        
 
 def load_ml_risk_scores(df: pd.DataFrame):
     """
