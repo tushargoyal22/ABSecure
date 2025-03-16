@@ -192,16 +192,12 @@ data/financial_risk_data.json
 
 ## 2️⃣ Configuration  
 
-Instead of modifying `seed.py`, set up the file paths in **config.json**:  
+Set up environment variables in `.env` before running the script:  
 
-```json
-{
-  "json_file_path": "data/financial_risk_data.json",
-  "mongo_uri": "your_mongodb_connection_string"
-}
-```
+```ini
+MONGO_URI=your_mongodb_connection_string
+JSON_FILE_PATH=data/financial_risk_data.json
 
-This ensures consistency across scripts.
 
 ## 3️⃣ Running the Script  
 
@@ -220,8 +216,9 @@ python backend/seed.py
 
 - **MongoDB connection issues?**  
   - Ensure your **MongoDB Atlas cluster** is active.  
-  - Check that your **MONGO_URI** in `config.json` is correct.  
-  - Make sure your IP is whitelisted in MongoDB Atlas.  
+  - Check that your **MONGO_URI** in `.env` is correct.  
+  - Make sure your **IP is whitelisted** in MongoDB Atlas.
+
 ```
 
 ---
