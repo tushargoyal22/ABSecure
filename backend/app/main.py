@@ -1,9 +1,9 @@
+# main.py
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
-from app.routes import loan_routes
-from app.routes import pool_routes  # Import pool routes
+from app.routes import loan_routes, auth_routes, pool_routes  # Import auth routes
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -14,6 +14,7 @@ app = FastAPI()
 
 # Include API routes
 app.include_router(loan_routes.router)
+app.include_router(auth_routes.router, prefix="/auth")  # Include auth routes
 app.include_router(pool_routes.router, prefix="/pool")  
 
 # CORS Configuration (if required)
@@ -48,7 +49,6 @@ async def generic_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"error": "Internal Server Error", "detail": str(exc)},
     )
-
 """
 # Changes Implemented after first review:
 1. **Replaced plain text error responses with structured JSON** for consistent API responses.
