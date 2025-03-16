@@ -116,12 +116,4 @@ async def delete_loan(loan_id: str):
     except Exception as e:
         logging.error(f"Error deleting loan: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error: {str(e)}")
-# ============================================
-#Summary of Changes:
-# ============================================
-# 1️. **Added Loan ID Validation** – Ensures `loan_id` is a valid ObjectId format.
-# 2️.**Refactored ObjectId Handling** – Used `validate_object_id()` for consistency.
-# 3️.**Improved Logging** – More detailed logs for better debugging.
-# 4️.**Better Exception Handling** – Specific error messages for `InvalidId` cases.
-# These changes enhance API stability, clarity, and error handling!   
-# ============================================
+

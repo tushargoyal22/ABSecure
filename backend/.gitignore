@@ -2,6 +2,7 @@
 venv/
 .venv/
 
+
 # Other files and directories to ignore
 __pycache__/
 *.pyc
@@ -9,3 +10,9 @@ __pycache__/
 *.pyd
 
 backend/backend.code-workspace
+backend\.vscode\settings.json
+backend\.vscode 
+.vscode/settings.json
+
+financial_risk_data.json
+Loan.csv

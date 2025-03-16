@@ -191,3 +191,66 @@ Ensure MongoDB is running and update the connection string in `backend/main.py`.
   ```bash
   npm run dev
   ```
+
+# MongoDB Seeding Script (`seed.py`)
+
+The `seed.py` script populates the database by importing financial loan data from a JSON file into MongoDB.
+
+## Prerequisites
+
+Before running the script, ensure you have:
+- **Python 3.x** installed  
+- Required dependencies (install using):
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+## Requirements
+
+- A running **MongoDB Atlas or Local MongoDB instance**  
+- A valid **JSON file** containing loan data  
+
+## 1️⃣ Dataset Setup  
+
+The loan dataset is required. You can download the original CSV from Kaggle:  
+
+🔗 **[Financial Risk for Loan Approval Dataset](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval)**  
+
+If you haven't already, convert the CSV to JSON manually and store it as:  
+
+```
+data/financial_risk_data.json
+```
+
+## 2️⃣ Configuration  
+
+Set up environment variables in `.env` before running the script:  
+
+```ini
+MONGO_URI=your_mongodb_connection_string
+JSON_FILE_PATH=data/financial_risk_data.json
+
+
+## 3️⃣ Running the Script  
+
+Execute the script using:
+
+```bash
+python backend/seed.py
+```
+
+### What the Script Does  
+- Loads loan data from the JSON file  
+- Inserts **only new** records into MongoDB (avoiding duplicates)  
+- Prints a **sample of 5 records** from the database for testing  
+
+## 4️⃣ Troubleshooting  
+
+- **MongoDB connection issues?**  
+  - Ensure your **MongoDB Atlas cluster** is active.  
+  - Check that your **MONGO_URI** in `.env` is correct.  
+  - Make sure your **IP is whitelisted** in MongoDB Atlas.
+
+```
+
+---
