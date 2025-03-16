@@ -162,53 +162,66 @@ Ensure MongoDB is running and update the connection string in `backend/main.py`.
 
 # MongoDB Seeding Script (`seed.py`)
 
-The seed.py script is responsible for populating the database by importing financial loan data from a CSV file into MongoDB .
+The `seed.py` script populates the database by importing financial loan data from a JSON file into MongoDB.
 
 ## Prerequisites
+
 Before running the script, ensure you have:
 - **Python 3.x** installed  
-- Required dependencies:Can be installed using:
+- Required dependencies (install using):
   ```bash
   pip install -r requirements.txt
+  ```
 
 ## Requirements
+
 - A running **MongoDB Atlas or Local MongoDB instance**  
-- A valid **CSV file** containing loan data  
+- A valid **JSON file** containing loan data  
 
-## Usage
+## 1️⃣ Dataset Setup  
 
-### 1️⃣ Update Configuration  
-Modify the **file paths** in `seed.py` to match your setup:
-- Replace  
-  ```python
-  csv_file_path = r"C:\DE-Shaw(Project)\Loan.csv"
-  ```
-  with the actual path of your CSV file.  
-- Ensure the JSON file path is correctly set:  
-  ```python
-  json_file_path = "financial_risk_data.json"
-  ```
-- Update the **MongoDB connection string** (`MONGO_URI`) with your credentials.
+The loan dataset is required. You can download the original CSV from Kaggle:  
 
-### 2️⃣ Run the Script  
+🔗 **[Financial Risk for Loan Approval Dataset](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval)**  
+
+If you haven't already, convert the CSV to JSON manually and store it as:  
+
+```
+data/financial_risk_data.json
+```
+
+## 2️⃣ Configuration  
+
+Instead of modifying `seed.py`, set up the file paths in **config.json**:  
+
+```json
+{
+  "json_file_path": "data/financial_risk_data.json",
+  "mongo_uri": "your_mongodb_connection_string"
+}
+```
+
+This ensures consistency across scripts.
+
+## 3️⃣ Running the Script  
+
 Execute the script using:
 
 ```bash
 python backend/seed.py
 ```
 
-### 3️⃣ What the Script Does  
-- Loads loan data from the CSV file  
-- Converts it into JSON format  
+### What the Script Does  
+- Loads loan data from the JSON file  
 - Inserts **only new** records into MongoDB (avoiding duplicates)  
-- Prints a **sample of 5 records** from the database for testing purpose
+- Prints a **sample of 5 records** from the database for testing  
 
-## Troubleshooting
+## 4️⃣ Troubleshooting  
 
 - **MongoDB connection issues?**  
   - Ensure your **MongoDB Atlas cluster** is active.  
-  - Check that your **MONGO_URI** in `seed.py` is correct.  
+  - Check that your **MONGO_URI** in `config.json` is correct.  
   - Make sure your IP is whitelisted in MongoDB Atlas.  
+```
 
-
-
+---
