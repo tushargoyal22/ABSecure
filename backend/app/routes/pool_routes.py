@@ -6,7 +6,8 @@ import numpy as np
 from bson import ObjectId
 from app.config.database import get_database
 from app.services.pool_service import allocate_tranches
-from app.ml.risk_model import load_ml_risk_scores, get_updated_dataset
+from app.ml.risk_model import load_ml_risk_scores, get_updated_dataset, get_risk_score
+from app.ml.analysis import generate_ai_report,summarize_tranche_allocation,analyze_macro_impact,process_loan_data
 import logging
 
 router = APIRouter()
@@ -14,7 +15,7 @@ router = APIRouter()
 # Get the loan database and its loans collection.
 loan_db = get_database()
 loans_collection = loan_db["loans"]
-
+MODEL_PKL = 'loan_risk_model.pkl'
 
 
 @router.post("/allocate")
@@ -37,6 +38,9 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
 
     # Call the pooling and tranche allocation function from the service,
     # passing investor_budget as an additional parameter.
+
+    df = df.drop(columns=["_id", "investor_id", "status", "tranche_type"], errors='ignore')
+
     predictions = load_ml_risk_scores(df)
     if predictions is None:
         raise HTTPException(status_code=500, detail="Risk score predictions failed.")
@@ -107,3 +111,38 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
         "message": "Tranches allocated and stored successfully.",
         "tranche_details": tranche_details
     }
+
+
+@router.get("/generate_report")
+def generate_report(criterion: str, suboption: str, investor_budget: float):
+    loans = list(loans_collection.find({}))
+    if not loans:
+        raise HTTPException(status_code=404, detail="No loans found in the loan database.")
+
+    # Convert MongoDB records into a pandas DataFrame.
+    df = pd.DataFrame(loans)
+    if df.empty:
+        raise HTTPException(status_code=404, detail="Loan data is empty after conversion.")
+
+    # Call the pooling and tranche allocation function from the service,
+    # passing investor_budget as an additional parameter.
+    df = df.drop(columns=["_id", "investor_id", "status", "tranche_type"], errors='ignore')
+
+    predictions = get_risk_score(MODEL_PKL,df)
+    if predictions is None:
+        raise HTTPException(status_code=500, detail="Risk score predictions failed.")
+
+    df = get_updated_dataset(df, predictions)
+
+    logging.info(f"columns in df are {df.columns}")
+
+    loan_data = process_loan_data(df)
+    logging.info(f"columns in loan_data are {loan_data.columns}")
+
+    selected_loans_per_tranche = allocate_tranches(loan_data, criterion, suboption,investor_budget)
+    tranche_summary = summarize_tranche_allocation(selected_loans_per_tranche, criterion, suboption)
+    macro_impact_summary = analyze_macro_impact(selected_loans_per_tranche, loan_data)
+    ai_report = generate_ai_report(tranche_summary, macro_impact_summary)
+    return {"report": ai_report}
+
+

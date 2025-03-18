@@ -16,7 +16,7 @@ ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that hel
 - **Backend:** FastAPI (Python)
 - **Database:** MongoDB
 - **Frontend:** React.js / Vue.js
-- **AI:** Generative AI (GPT-based) for risk reporting & scenario analysis
+- **AI:** Generative AI (GeminiAI-based) for risk reporting & scenario analysis
 - **Deployment:** AWS / GCP / Render(Future plan)
 - **Version Control:** GitHub
 
@@ -31,6 +31,7 @@ ABSecure/
 │   │   │── ml/
 │   │   │   │── risk_model.py   # ML model
 │   │   │   │── loan_risk_model.pkl  # pickle file
+|   |   |   |__ analysis.py     # Script for generating analysis
 │   │   │
 │   │   │── models/
 │   │   │   ├── loan.py  # Loan schema using Pydantic
