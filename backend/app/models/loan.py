@@ -37,7 +37,7 @@ class Loan(BaseModel):
     EmploymentStatus: str  
 
     # Optional fields for ML & analytics
-    RiskScore: Optional[int] = None  
+    RiskScore: Optional[int] = None  # ML model will assign this if not provided
     EducationLevel: Optional[str] = None
     Experience: Optional[int] = None
     MaritalStatus: Optional[str] = None
@@ -126,6 +126,6 @@ class LoanInput(BaseModel):
                 "NumberOfDependents": 1,
                 "PreviousLoanDefaults": 0,
                 "BankruptcyHistory": 0,
-                "EmploymentStatus": "Employed"
+                "EmploymentStatus": "Employed"  # Required field now included in the example
             }
         }

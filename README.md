@@ -28,6 +28,10 @@ ABSecure/
 │   │   │── config/
 │   │   │   ├── database.py  # MongoDB connection setup
 │   │   │
+│   │   │── ml/
+│   │   │   │── risk_model.py   # ML model
+│   │   │   │── loan_risk_model.pkl  # pickle file
+│   │   │
 │   │   │── models/
 │   │   │   ├── loan.py  # Loan schema using Pydantic
 │   │   │   ├── pool.py  # Loan Pool schema
@@ -66,6 +70,34 @@ ABSecure/
 |   |__ .gitignore # Ignore unnecessary files
 
 ```
+## Dataset Details
+The ABSecure system leverages the [Financial Risk for Loan Approval](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval) dataset from Kaggle. This dataset provides a rich set of financial, credit, and demographic details on loan applicants and is crucial for:
+
+- **Assessing Loan Risk:**  
+  Predicting a **RiskScore** for each loan using a machine learning (Random Forest) model that integrates multiple financial metrics and is used in tranching of loans.
+- **Loan Pooling & Tranche Allocation:**  
+  Grouping loans based on dynamic criteria chosen by the user—such as duration, creditworthiness, liquidity, and debt metrics—to create investment tranches.  
+  *For example:*  
+  - **Pooling by Duration:** If a user selects the pooling option **Duration** with the suboption **Short-Term**, the system filters the dataset to include only loans with a duration of 12 months or less.  
+  - **Pooling by Creditworthiness:** If a user opts for pooling by **Creditworthiness** with the suboption **Excellent**, then only loans that satisfy the defined excellent criteria (e.g., meeting specified thresholds for CreditScore, LengthOfCreditHistory, and other relevant metrics) are grouped together.
+
+### Key Attributes
+- **Applicant Info:**  
+  • ApplicationDate, Age, EmploymentStatus, EducationLevel, Experience, MaritalStatus, NumberOfDependents
+
+- **Financial Data:**  
+  • AnnualIncome, MonthlyIncome, SavingsAccountBalance, CheckingAccountBalance, NetWorth
+
+- **Credit & Debt Metrics:**  
+  • CreditScore, LengthOfCreditHistory, NumberOfOpenCreditLines, NumberOfCreditInquiries, DebtToIncomeRatio, TotalDebtToIncomeRatio, BankruptcyHistory, PreviousLoanDefaults, PaymentHistory, CreditCardUtilizationRate
+
+- **Loan Details:**  
+  • LoanAmount, LoanDuration, LoanPurpose, BaseInterestRate, InterestRate, MonthlyLoanPayment
+
+- **Target Variable(IN ML):**  
+  • RiskScore
+
+This dataset underpins our machine learning model, which calculates a RiskScore that informs our dynamic pooling logic and subsequent ABS tranche creation.
 
 ## Getting Started
 
@@ -212,3 +244,66 @@ python backend/seed.py
 
 
 
+
+# MongoDB Seeding Script (`seed.py`)
+
+The `seed.py` script populates the database by importing financial loan data from a JSON file into MongoDB.
+
+## Prerequisites
+
+Before running the script, ensure you have:
+- **Python 3.x** installed  
+- Required dependencies (install using):
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+## Requirements
+
+- A running **MongoDB Atlas or Local MongoDB instance**  
+- A valid **JSON file** containing loan data  
+
+## 1️⃣ Dataset Setup  
+
+The loan dataset is required. You can download the original CSV from Kaggle:  
+
+🔗 **[Financial Risk for Loan Approval Dataset](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval)**  
+
+If you haven't already, convert the CSV to JSON manually and store it as:  
+
+```
+data/financial_risk_data.json
+```
+
+## 2️⃣ Configuration  
+
+Set up environment variables in `.env` before running the script:  
+
+```ini
+MONGO_URI=your_mongodb_connection_string
+JSON_FILE_PATH=data/financial_risk_data.json
+
+
+## 3️⃣ Running the Script  
+
+Execute the script using:
+
+```bash
+python backend/seed.py
+```
+
+### What the Script Does  
+- Loads loan data from the JSON file  
+- Inserts **only new** records into MongoDB (avoiding duplicates)  
+- Prints a **sample of 5 records** from the database for testing  
+
+## 4️⃣ Troubleshooting  
+
+- **MongoDB connection issues?**  
+  - Ensure your **MongoDB Atlas cluster** is active.  
+  - Check that your **MONGO_URI** in `.env` is correct.  
+  - Make sure your **IP is whitelisted** in MongoDB Atlas.
+
+```
+
+---
