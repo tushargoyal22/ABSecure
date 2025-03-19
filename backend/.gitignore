@@ -2,6 +2,7 @@
 venv/
 .venv/
 
+.env
 
 # Other files and directories to ignore
 __pycache__/
