@@ -3,6 +3,9 @@ import smtplib
 from email.mime.text import MIMEText
 import pandas as pd
 import os
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -14,17 +17,19 @@ SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD", "your_app_password")
 SPIKE_THRESHOLD_PERCENT = float(os.getenv("SPIKE_THRESHOLD_PERCENT", "0.1"))
 
 def fetch_cpi_data():
-    """
-    Fetches CPI data from Alpha Vantage API.
-    Expects the JSON response to have a "data" key containing a list of records.
-    """
     url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={ALPHAVANTAGE_API_KEY}"
-    r = requests.get(url)
-    data = r.json()
-    if "data" in data:
-        return data["data"]
-    else:
-        print("Error fetching CPI data:", data)
+
+    session = requests.Session()
+    retries = Retry(total=3, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    try:
+        response = session.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        return data.get("data", [])
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching CPI data: {e}")
         return []
 
 def detect_cpi_spike(cpi_data, threshold_percent=SPIKE_THRESHOLD_PERCENT):

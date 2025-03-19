@@ -68,12 +68,3 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run("ml.main:app", host="0.0.0.0", port=8000, reload=True)
 
-"""
-# Changes Implemented after first review:
-1. **Replaced plain text error responses with structured JSON** for consistent API responses.
-2. **Integrated logging for exception handling**, improving debugging and issue tracking.
-3. **Enhanced error handling logic**:
-   - Captures general exceptions and logs them appropriately.
-   - Logs the request URL for better traceability.
-4. **Ensured uniform response structure** across all endpoints for API reliability.
-"""

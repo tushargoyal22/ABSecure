@@ -1,13 +1,17 @@
-# services/beat_scheduler.py
+import os
+import logging
 from celery import Celery
 from celery.schedules import crontab
 from dotenv import load_dotenv
-load_dotenv()  # This will load variables from .env into os.environ
+
+load_dotenv()  # Load environment variables
+
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")  # Default fallback
 
 celery_app = Celery(
     "tasks",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",
+    broker=REDIS_URL,
+    backend=REDIS_URL,
     include=["app.services.celery_worker"]
 )
 
@@ -18,12 +22,5 @@ celery_app.conf.beat_schedule = {
     },
 }
 celery_app.conf.timezone = "UTC"
-
-import pandas as pd
-import numpy as np  # Used for handling division by zero (np.nan)
-import logging
-from functools import lru_cache
-from app.ml.risk_model import load_ml_risk_scores, get_updated_dataset
-from app.config.database import get_database
 
 logger = logging.getLogger(__name__)
