@@ -65,7 +65,7 @@ const TrancheAllocationResult = () => {
   const COLORS = ["#4CAF50", "#FF9800", "#F44336", "#9C27B0"];
 
   return (
-    <div className="flex flex-col items-center p-6 space-y-8 min-h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col items-center p-6 space-y-8 min-h-screen ">
       <Card className="w-full max-w-4xl shadow-xl rounded-2xl bg-white dark:bg-gray-800 p-6">
         <CardHeader className="border-b pb-4 flex justify-between items-center">
           <CardTitle className="text-2xl font-bold text-gray-800 dark:text-gray-200">
@@ -253,6 +253,9 @@ const TrancheAllocationResult = () => {
             </Button>
             <Button onClick={() => navigate("/tranche-input")}>
               Modify Allocation
+            </Button>
+            <Button onClick={() => navigate("/report")}>
+              Generate Securitization Report
             </Button>
           </div>
         </CardContent>

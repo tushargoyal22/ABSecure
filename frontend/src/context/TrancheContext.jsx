@@ -10,16 +10,34 @@ export const TrancheProvider = ({ children }) => {
     const storedData = localStorage.getItem("trancheDetails");
     return storedData ? JSON.parse(storedData) : null;
   });
+  const [report, setReport] = useState(() => {
+    const storedReport = localStorage.getItem("report");
+    return storedReport ? JSON.parse(storedReport) : null;
+  });
 
   useEffect(() => {
     localStorage.setItem("criteria", criteria);
     localStorage.setItem("suboption", suboption);
     localStorage.setItem("budget", budget);
     localStorage.setItem("trancheDetails", JSON.stringify(trancheDetails));
-  }, [criteria, suboption, budget, trancheDetails]);
+    localStorage.setItem("report", JSON.stringify(report));
+  }, [criteria, suboption, budget, trancheDetails, report]);
 
   return (
-    <TrancheContext.Provider value={{ criteria, setCriteria, suboption, setSuboption, budget, setBudget, trancheDetails, setTrancheDetails }}>
+    <TrancheContext.Provider
+      value={{
+        criteria,
+        setCriteria,
+        suboption,
+        setSuboption,
+        budget,
+        setBudget,
+        trancheDetails,
+        setTrancheDetails,
+        report,
+        setReport, 
+      }}
+    >
       {children}
     </TrancheContext.Provider>
   );
