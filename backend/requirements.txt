@@ -9,4 +9,7 @@ joblib
 kagglehub
 scikit-learn
 logging
-
+celery
+redis
+openai
+requests
