@@ -1,10 +1,11 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 from app.routes import loan_routes
 from app.routes import pool_routes  # Import pool routes
 from app.config.database import initialize_default_thresholds
+from app.services.celery_worker import check_cpi_spike
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +19,15 @@ app = FastAPI()
 def startup_event():
     initialize_default_thresholds()
 
+@app.get("/")
+def read_root():
+    return {"message": "Macro Notification System Running"}
 
+@app.post("/trigger-cpi-check")
+def trigger_cpi_check(background_tasks: BackgroundTasks):
+    # This adds the Celery task to the queue
+    background_tasks.add_task(check_cpi_spike.delay)
+    return {"message": "CPI spike check triggered in background."}
 app.include_router(loan_routes.router)
 app.include_router(pool_routes.router, prefix="/pool")  
 
@@ -54,6 +63,10 @@ async def generic_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"error": "Internal Server Error", "detail": str(exc)},
     )
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("ml.main:app", host="0.0.0.0", port=8000, reload=True)
 
 """
 # Changes Implemented after first review:
