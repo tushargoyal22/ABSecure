@@ -19,9 +19,6 @@ app = FastAPI()
 def startup_event():
     initialize_default_thresholds()
 
-@app.get("/")
-def read_root():
-    return {"message": "Macro Notification System Running"}
 
 @app.post("/trigger-cpi-check")
 def trigger_cpi_check(background_tasks: BackgroundTasks):
@@ -66,5 +63,8 @@ async def generic_exception_handler(request: Request, exc: Exception):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("ml.main:app", host="0.0.0.0", port=8000, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
+
 
