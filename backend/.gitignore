@@ -17,3 +17,4 @@ backend\.vscode
 
 financial_risk_data.json
 Loan.csv
+loan_risk_model.pkl

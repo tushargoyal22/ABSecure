@@ -1,9 +1,6 @@
 # App/routes/pool_routes.py
-import datetime
 from fastapi import APIRouter, HTTPException
 import pandas as pd
-import numpy as np
-from bson import ObjectId
 from app.config.database import get_database
 from app.services.pool_service import allocate_tranches
 from app.ml.risk_model import load_ml_risk_scores, get_updated_dataset, get_risk_score
