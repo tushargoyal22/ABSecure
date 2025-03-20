@@ -6,6 +6,7 @@ import TrancheResult from "./pages/TrancheResult";
 import Dashboard from "./pages/Dashboard";
 import Layout from "./components/Layout";
 import Tranche from "./pages/Tranche";
+import ReportViewer from "./pages/ReportViewer";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="tranche" element={<Tranche />} />
               <Route path="tranche-input" element={<TrancheInput />} />
               <Route path="tranche-result" element={<TrancheResult />} />
+              <Route path="report" element={<ReportViewer />} />
             </Routes>
           </Layout>
         }

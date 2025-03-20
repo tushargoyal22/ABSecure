@@ -9,4 +9,10 @@ joblib
 kagglehub
 scikit-learn
 logging
-
+celery
+redis
+openai
+requests
+yfinance
+google-api-python-client
+google-generativeai

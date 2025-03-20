@@ -1,10 +1,10 @@
-# main.py
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
 from app.routes import loan_routes, auth_routes, pool_routes  # Import auth routes
 from app.config.database import initialize_default_thresholds
+from app.services.celery_worker import check_cpi_spike
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +19,11 @@ def startup_event():
     initialize_default_thresholds()
 
 
+@app.post("/trigger-cpi-check")
+def trigger_cpi_check(background_tasks: BackgroundTasks):
+    # This adds the Celery task to the queue
+    background_tasks.add_task(check_cpi_spike.delay)
+    return {"message": "CPI spike check triggered in background."}
 app.include_router(loan_routes.router)
 app.include_router(auth_routes.router, prefix="/auth")  # Include auth routes
 app.include_router(pool_routes.router, prefix="/pool")  
@@ -55,12 +60,10 @@ async def generic_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"error": "Internal Server Error", "detail": str(exc)},
     )
-"""
-# Changes Implemented after first review:
-1. **Replaced plain text error responses with structured JSON** for consistent API responses.
-2. **Integrated logging for exception handling**, improving debugging and issue tracking.
-3. **Enhanced error handling logic**:
-   - Captures general exceptions and logs them appropriately.
-   - Logs the request URL for better traceability.
-4. **Ensured uniform response structure** across all endpoints for API reliability.
-"""
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
