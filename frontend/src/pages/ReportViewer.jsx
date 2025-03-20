@@ -33,16 +33,92 @@ const ReportViewer = () => {
 
     const cleanText = (text) => text.replace(/\*\*.*?\*\*/g, "").trim();
 
+    const getSectionText = (startIndex, nextSectionIndex) => {
+      return sections.slice(startIndex, nextSectionIndex).join("\n\n").trim();
+    };
+
+    const idx = sections.findIndex(
+      (s) =>
+        s.startsWith("\n**II. Macroeconomic Impact Analysis**") ||
+        s.startsWith("**II. Macroeconomic Impact Analysis**")
+    );
+
     return {
-      securitizationType: cleanText(sections[1]),
-      underlyingAssets: cleanText(sections[2]),
-      investorCriteria: cleanText(sections[3]),
-      trancheAllocation: sections[5],
-      macroeconomicImpact: sections[7],
-      findings: sections[9],
-      conclusion: sections[11],
-      disclaimer: sections[13],
-      financialTerms: sections.slice(15).join("\n\n"),
+      securitizationType: cleanText(
+        sections[
+          sections.findIndex(
+            (s) =>
+              s.startsWith("**Securitization Type:**") ||
+              s.startsWith("**I. Securitization Type:**")
+          )
+        ]
+      ),
+      underlyingAssets: cleanText(
+        sections[
+          sections.findIndex(
+            (s) =>
+              s.startsWith("**Underlying Assets:**") ||
+              s.startsWith("**II. Underlying Assets:**")
+          )
+        ]
+      ),
+      investorCriteria: cleanText(
+        sections[
+          sections.findIndex(
+            (s) =>
+              s.startsWith("**Investor Selection Criteria:**") ||
+              s.startsWith("**III. Investor Selection Criteria:**")
+          )
+        ]
+      ),
+      trancheAllocation:
+        sections[
+          sections.findIndex(
+            (s, i) => i < idx && s.startsWith("| Tranche Type")
+          )
+        ],
+      macroeconomicImpact:
+        sections[
+          sections.findIndex(
+            (s, i) => i > idx && s.startsWith("| Tranche Type")
+          )
+        ],
+      findings: getSectionText(
+        sections.findIndex(
+          (s) =>
+            s.startsWith("**III. Discussion of Finding") ||
+            s.startsWith("\n**III. Discussion of Finding")
+        ) + 1,
+        sections.findIndex(
+          (s) => s.startsWith("**IV.") || s.startsWith("\n**IV.")
+        )
+      ),
+      conclusion: getSectionText(
+        sections.findIndex(
+          (s) => s.startsWith("**IV.") || s.startsWith("\n**IV.")
+        ) + 1,
+        sections.findIndex(
+          (s) => s.startsWith("**V.") || s.startsWith("\n**V.")
+        )
+      ),
+      disclaimer: getSectionText(
+        sections.findIndex(
+          (s) => s.startsWith("**V.") || s.startsWith("\n**V.")
+        ) + 1,
+        sections.findIndex(
+          (s) =>
+            s.startsWith("\n**Financial Terms Explained:**") ||
+            s.startsWith("**Financial Terms Explained:**")
+        )
+      ),
+      financialTerms: getSectionText(
+        sections.findIndex(
+          (s) =>
+            s.startsWith("\n**Financial Terms Explained:**") ||
+            s.startsWith("**Financial Terms Explained:**")
+        ) + 1,
+        sections.length
+      ),
     };
   };
 
@@ -272,12 +348,8 @@ const ReportViewer = () => {
             </Button>
             {report && (
               <>
-                <Button onClick={copyToClipboard}>
-                  Copy to Clipboard
-                </Button>
-                <Button onClick={downloadPDF}>
-                  Download as PDF
-                </Button>
+                <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
+                <Button onClick={downloadPDF}>Download as PDF</Button>
               </>
             )}
           </div>
