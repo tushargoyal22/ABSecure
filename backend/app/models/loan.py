@@ -13,7 +13,7 @@ class PyObjectId(str):
             raise ValueError("Invalid ObjectId")
         return str(v)  # Convert ObjectId to string for JSON response
 
-# ✅ Loan model (used for database storage)
+#Loan model (used for database storage)
 class Loan(BaseModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     ApplicationDate: str
@@ -83,7 +83,7 @@ class Loan(BaseModel):
             }
         }
 
-# ✅ LoanInput model (used for request validation)
+# LoanInput model (used for request validation)
 class LoanInput(BaseModel):
     ApplicationDate: str
     Age: int

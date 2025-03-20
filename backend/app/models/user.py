@@ -1,15 +1,19 @@
-# backend/models/user.py
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional
 from bson import ObjectId
+from pydantic_core.core_schema import CoreSchema, ValidationInfo
 
 class PyObjectId(str):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls.validate
+    """Custom type to handle MongoDB ObjectId fields properly."""
 
     @classmethod
-    def validate(cls, v):
+    def __get_pydantic_core_schema__(cls, source_type, handler) -> CoreSchema:
+        """Fixes OpenAPI schema resolution issues."""
+        return handler.generate_schema(str)
+
+    @classmethod
+    def validate(cls, v, info: ValidationInfo) -> str:
+        """Validates if the given value is a valid ObjectId."""
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return str(v)
