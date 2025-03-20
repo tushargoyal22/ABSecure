@@ -2,8 +2,7 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
-from app.routes import loan_routes
-from app.routes import pool_routes  # Import pool routes
+from app.routes import loan_routes, auth_routes, pool_routes  # Import auth routes
 from app.config.database import initialize_default_thresholds
 from app.services.celery_worker import check_cpi_spike
 
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI()
 
-# ✅ Include API routes
+#  Include API routes
 @app.on_event("startup")
 def startup_event():
     initialize_default_thresholds()
@@ -26,6 +25,7 @@ def trigger_cpi_check(background_tasks: BackgroundTasks):
     background_tasks.add_task(check_cpi_spike.delay)
     return {"message": "CPI spike check triggered in background."}
 app.include_router(loan_routes.router)
+app.include_router(auth_routes.router, prefix="/auth")  # Include auth routes
 app.include_router(pool_routes.router, prefix="/pool")  
 
 # CORS Configuration (if required)
@@ -61,10 +61,9 @@ async def generic_exception_handler(request: Request, exc: Exception):
         content={"error": "Internal Server Error", "detail": str(exc)},
     )
 
+
 if __name__ == "__main__":
     import uvicorn
     import os
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("app.main:app", host="0.0.0.0", port=port, reload=True)
-
-

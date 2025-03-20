@@ -192,7 +192,7 @@ Ensure MongoDB is running and update the connection string in `backend/main.py`.
   ```bash
   npm run dev
   ```
-
+  
 # MongoDB Seeding Script (`seed.py`)
 
 The `seed.py` script populates the database by importing financial loan data from a JSON file into MongoDB.

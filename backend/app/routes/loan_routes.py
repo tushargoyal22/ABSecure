@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, HTTPException
-from app.models.loan import Loan
+from app.models.loan import Loan,LoanInput
 from app.config.database import get_database
 from pymongo.errors import DuplicateKeyError
 from bson import ObjectId, errors
@@ -28,7 +28,7 @@ def fix_id(loan: dict) -> dict:
 
 # 🔹 CREATE LOAN
 @router.post("/loans/")
-async def create_loan(loan: Loan):
+async def create_loan(loan: LoanInput):
     try:
         loan_dict = loan.dict(by_alias=True, exclude={"id"})  # Fix `_id` handling
         logging.info(f" Received Loan Data: {loan_dict}")
