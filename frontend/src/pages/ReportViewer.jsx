@@ -6,24 +6,52 @@ import axios from "axios";
 import { useTranche } from "@/context/TrancheContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const ReportViewer = () => {
   const { report, setReport, criteria, suboption, budget } = useTranche();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchReport = async () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${API_URL}/pool/generate_report?criterion=${criteria}&suboption=${suboption}&investor_budget=${budget}`
+        `${API_URL}/pool/generate_report?criterion=${criteria}&suboption=${suboption}&investor_budget=${budget}`,
+        { timeout: 60000 }
       );
       const parsedReport = parseReport(response.data.report);
       setReport(parsedReport);
     } catch (error) {
       console.error("Error fetching report:", error);
-      setReport("Failed to generate report. Please try again.");
+      if (error.code === "ECONNABORTED") {
+        Swal.fire({
+          toast: true,
+          position: "bottom-end",
+          icon: "warning",
+          title: "Request Timed Out",
+          text: "The report generation is taking too long. Please try again later.",
+          showConfirmButton: false,
+          timer: 5000,
+          timerProgressBar: true,
+        });
+        setErrorMessage("The request timed out. Please try again later.");
+      } else {
+        Swal.fire({
+          toast: true,
+          position: "bottom-end",
+          icon: "error",
+          title: "Error",
+          text: "An unexpected error occurred while fetching the report.",
+          showConfirmButton: false,
+          timer: 5000,
+          timerProgressBar: true,
+        });
+        setErrorMessage("Something went wrong while generating the report.");
+      }
+      setReport(null);
     }
     setLoading(false);
   };
@@ -334,6 +362,10 @@ const ReportViewer = () => {
                   </ul>
                 </CardContent>
               </Card>
+            </div>
+          ) : errorMessage ? (
+            <div className="p-4 mb-4 text-red-800 bg-red-100 rounded-lg">
+              {errorMessage}
             </div>
           ) : (
             <p className="text-gray-500 dark:text-gray-400">
