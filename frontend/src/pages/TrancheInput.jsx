@@ -32,7 +32,8 @@ const CRITERIA = {
 
 const TrancheInput = () => {
   const navigate = useNavigate();
-  const { setCriteria, setSuboption, setBudget, setTrancheDetails } = useTranche();
+  const { setCriteria, setSuboption, setBudget, setTrancheDetails, setReport } =
+    useTranche();
   const [selectedCriterion, setSelectedCriterion] = useState("");
   const [selectedSubCriterion, setSelectedSubCriterion] = useState("");
   const [budget, setBudgetLocal] = useState("");
@@ -41,10 +42,12 @@ const TrancheInput = () => {
   const validateInputs = () => {
     let newErrors = {};
     if (!selectedCriterion) newErrors.criterion = "Please select a criterion.";
-    if (!selectedSubCriterion) newErrors.subCriterion = "Please select a sub-criterion.";
+    if (!selectedSubCriterion)
+      newErrors.subCriterion = "Please select a sub-criterion.";
     if (!budget) newErrors.budget = "Please enter a budget amount.";
-    else if (isNaN(budget) || budget <= 0) newErrors.budget = "Enter a valid positive budget amount.";
-    
+    else if (isNaN(budget) || budget <= 0)
+      newErrors.budget = "Enter a valid positive budget amount.";
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -70,8 +73,9 @@ const TrancheInput = () => {
       const response = await axios.post(
         `${API_URL}/pool/allocate?criterion=${selectedCriterion}&suboption=${selectedSubCriterion}&investor_budget=${budget}`
       );
-      
+
       setTrancheDetails(response.data.tranche_details);
+      setReport(null);
 
       Swal.fire({
         icon: "success",
@@ -115,11 +119,16 @@ const TrancheInput = () => {
                   ))}
                 </SelectContent>
               </Select>
-              {errors.criterion && <p className="text-red-500 text-sm">{errors.criterion}</p>}
+              {errors.criterion && (
+                <p className="text-red-500 text-sm">{errors.criterion}</p>
+              )}
             </div>
 
             <div>
-              <Select onValueChange={setSelectedSubCriterion} disabled={!selectedCriterion}>
+              <Select
+                onValueChange={setSelectedSubCriterion}
+                disabled={!selectedCriterion}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a Sub-Criterion" />
                 </SelectTrigger>
@@ -132,7 +141,9 @@ const TrancheInput = () => {
                     ))}
                 </SelectContent>
               </Select>
-              {errors.subCriterion && <p className="text-red-500 text-sm">{errors.subCriterion}</p>}
+              {errors.subCriterion && (
+                <p className="text-red-500 text-sm">{errors.subCriterion}</p>
+              )}
             </div>
 
             <div>
@@ -143,7 +154,9 @@ const TrancheInput = () => {
                 onChange={(e) => setBudgetLocal(e.target.value)}
                 min="1"
               />
-              {errors.budget && <p className="text-red-500 text-sm">{errors.budget}</p>}
+              {errors.budget && (
+                <p className="text-red-500 text-sm">{errors.budget}</p>
+              )}
             </div>
 
             <Button type="submit" className="w-full">

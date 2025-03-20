@@ -46,15 +46,14 @@ const data = {
         { title: "Allocation Results", url: "/tranche-result" }
       ]
     },
-    // {
-    //   title: "AI Insights",
-    //   url: "/ai-insights",
-    //   items: [
-    //     { title: "Risk Analysis", url: "#" },
-    //     { title: "AI-Generated Reports", url: "#" },
-    //     { title: "Investment Suggestions", url: "#" },
-    //   ],
-    // },
+    {
+      title: "AI Insights",
+      url: "/report",
+      items: [
+        { title: "AI-Generated Report", url: "/report" },
+        // { title: "Investment Suggestions", url: "#" },
+      ],
+    },
     // {
     //   title: "User Profile & Settings",
     //   url: "/profile",
