@@ -16,13 +16,9 @@ import {
   SidebarRail,
 } from "./sidebar";
 import { NavUser } from "./nav-user";
+import { useUser } from "@/context/UserContext";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     // {
     //   title: "Dashboard",
@@ -43,8 +39,8 @@ const data = {
       url: "/tranche",
       items: [
         { title: "Input Criteria", url: "/tranche-input" },
-        { title: "Allocation Results", url: "/tranche-result" }
-      ]
+        { title: "Allocation Results", url: "/tranche-result" },
+      ],
     },
     {
       title: "AI Insights",
@@ -67,6 +63,8 @@ const data = {
 
 export function AppSidebar({ ...props }) {
   const location = useLocation();
+  const { user } = useUser();
+
   return (
     <Sidebar {...props}>
       <SidebarHeader>
@@ -100,7 +98,10 @@ export function AppSidebar({ ...props }) {
                   <SidebarMenuSub>
                     {item.items.map((item) => (
                       <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton asChild isActive={location.pathname === item.url}>
+                        <SidebarMenuSubButton
+                          asChild
+                          isActive={location.pathname === item.url}
+                        >
                           <a href={item.url}>{item.title}</a>
                         </SidebarMenuSubButton>
                       </SidebarMenuSubItem>
@@ -113,7 +114,11 @@ export function AppSidebar({ ...props }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        {user ? (
+          <NavUser />
+        ) : (
+          <p className="text-center text-sm">Not Logged In</p>
+        )}
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

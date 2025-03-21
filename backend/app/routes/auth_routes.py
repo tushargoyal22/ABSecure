@@ -89,7 +89,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     # Generate an access token upon successful authentication
     access_token = create_access_token(data={"sub": user["email"]})
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "full_name": user["full_name"],
+        "email": user["email"],
+        "tranches": user.get("tranches", [])
+    }
 
 
 @router.get("/verify-email")

@@ -25,7 +25,7 @@ if not EMAIL_ADDRESS or not EMAIL_PASSWORD or not SMTP_SERVER:
 def send_verification_email(email: str, token: str):
     """Sends a verification email to the given email address with a verification link."""
     subject = "Verify Your Email"
-    verification_link = f"http://localhost:8000/auth/verify-email?token={token}"
+    verification_link = f"http://localhost:5173/verify?token={token}"
     body = f"Please verify your email by clicking the following link:\n\n{verification_link}"
 
     msg = MIMEMultipart()
