@@ -10,8 +10,7 @@ import { useUser } from "@/context/UserContext";
 const API_URL = import.meta.env.VITE_API_URL;
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { loginUser } = useUser();
@@ -21,7 +20,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateEmail(email)) {
+    if (!validateEmail(formData.email)) {
       return Swal.fire("Error", "Invalid email format!", "error");
     }
     if (!validatePassword(password)) {
@@ -37,12 +36,18 @@ const Login = () => {
       const response = await axios.post(
         `${API_URL}/auth/login`,
         new URLSearchParams({
-          username: email,
-          password: password,
-        })
+          username: formData.email,
+          password: formData.password,
+        }),
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Accept: "application/json",
+          },
+        }
       );
-      const userData = response.data
-  
+      const userData = response.data;
+
       loginUser(userData);
       localStorage.setItem("token", response.data.access_token);
 
@@ -73,7 +78,7 @@ const Login = () => {
             <Input
               type="email"
               placeholder="Email"
-              value={email}
+              value={formData.email}
               onChange={(e) => setEmail(e.target.value)}
               required
               className="p-3 border border-white"
@@ -81,7 +86,7 @@ const Login = () => {
             <Input
               type="password"
               placeholder="Password"
-              value={password}
+              value={formData.password}
               onChange={(e) => setPassword(e.target.value)}
               required
               className="p-3 border border-white"

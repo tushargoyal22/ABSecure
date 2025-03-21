@@ -21,8 +21,9 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const trimmedFullName = fullName.trim();
 
-    if (!fullName.trim()) {
+    if (!trimmedFullName) {
       return Swal.fire("Error", "Full Name is required!", "error");
     }
     if (!validateEmail(email)) {
@@ -38,7 +39,7 @@ const Signup = () => {
     if (password !== confirmPassword) {
       return Swal.fire(
         "Error",
-        "Password and Confirm Passord do not match!",
+        "Password and Confirm Password do not match!",
         "error"
       );
     }
@@ -47,7 +48,7 @@ const Signup = () => {
 
     try {
       const response = await axios.post(`${API_URL}/auth/register`, {
-        full_name: fullName,
+        full_name: trimmedFullName,
         email,
         password,
       });
@@ -55,7 +56,6 @@ const Signup = () => {
       Swal.fire("Success", response.data.message, "success").then(() => {
         navigate("/login");
       });
-      navigate("/login");
     } catch (error) {
       Swal.fire(
         "Error",

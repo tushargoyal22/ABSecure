@@ -8,7 +8,7 @@ const VerifyEmail = () => {
   const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-  const token = searchParams.get("token"); 
+  const token = searchParams.get("token");
 
   useEffect(() => {
     if (!token) {
@@ -22,10 +22,11 @@ const VerifyEmail = () => {
 
     const verifyEmail = async () => {
       try {
-        const response = await axios.get(`${API_URL}/auth/verify-email?${searchParams}`);
+        const response = await axios.get(
+          `${API_URL}/auth/verify-email?${searchParams}`
+        );
 
-
-        if (response.status==200) {
+        if (response.status === 200) {
           Swal.fire({
             icon: "success",
             title: "Email Verified!",
