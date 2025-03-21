@@ -16,3 +16,6 @@ requests
 yfinance
 google-api-python-client
 google-generativeai
+python-jose
+pydantic[email]
+passlib

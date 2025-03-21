@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional
+from typing import Optional, List
 from bson import ObjectId
 from pydantic_core.core_schema import CoreSchema, ValidationInfo
 
@@ -20,14 +20,17 @@ class PyObjectId(str):
 
 class User(BaseModel):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
+    full_name: str
     email: EmailStr
     password: str
     is_verified: bool = False
     verification_token: Optional[str] = None
+    tranches: List[str] = []
 
     class Config:
         json_schema_extra = {
             "example": {
+                "full_name": "user",
                 "email": "user@example.com",
                 "password": "securepassword",
                 "is_verified": False,

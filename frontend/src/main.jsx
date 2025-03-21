@@ -4,13 +4,16 @@ import "./index.css";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router";
 import { TrancheProvider } from "./context/TrancheContext";
+import { UserProvider } from "./context/UserContext";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <BrowserRouter>
-      <TrancheProvider>
-        <App />
-      </TrancheProvider>
+      <UserProvider>
+        <TrancheProvider>
+          <App />
+        </TrancheProvider>
+      </UserProvider>
     </BrowserRouter>
   </StrictMode>
 );

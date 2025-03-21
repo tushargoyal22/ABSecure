@@ -20,9 +20,9 @@ from app.ml.risk_model import get_updated_dataset, get_risk_score
 load_dotenv()
 
 # Constants
-MODEL_PKL = 'loan_risk_model.pkl'
-api_key = 'fe1051748abe7fe978f07d058a7006ee'
-GENAI_API_KEY = 'AIzaSyCwzfyp-Lok2-AiW5qc3pVYj50TruepAXU'
+MODEL_PKL = "loan_risk_model.pkl" 
+api_key = os.getenv("api_key")
+GENAI_API_KEY = os.getenv("GENAI_API_KEY")
 
 
 # Configure logging
@@ -104,6 +104,8 @@ def process_loan_data(df,start_year=2018, end_year=2024):
 
 def summarize_tranche_allocation(selected_loans_per_tranche, criterion, suboption):
     """Generate a summary of the tranche allocation."""
+    if selected_loans_per_tranche is None:
+        return None
     summary = f"Investor selected loans based on '{criterion}' with suboption '{suboption}'.\nTranche Allocation Summary:\n"
     for tranche, loans in selected_loans_per_tranche.items():
         total_loans = len(loans)
@@ -115,6 +117,8 @@ def summarize_tranche_allocation(selected_loans_per_tranche, criterion, suboptio
 
 def analyze_macro_impact(selected_loans_per_tranche, loan_data):
     """Analyze macroeconomic impact on selected tranches."""
+    if selected_loans_per_tranche is None  or loan_data is None:
+        return None
     summary = "Macroeconomic Impact on Tranches:\n"
     for tranche, loans in selected_loans_per_tranche.items():
 
@@ -136,6 +140,8 @@ def generate_ai_report(tranche_summary, macro_impact_summary):
     if not GENAI_API_KEY:
         logging.error("Google Gemini API Key is missing. Cannot generate AI report.")
         return "AI Report generation failed due to missing API key."
+    if tranche_summary is None or macro_impact_summary is None:
+        return "No loans available under this category"
 
     genai.configure(api_key=GENAI_API_KEY)
     model = genai.GenerativeModel("gemini-1.5-flash")
