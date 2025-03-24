@@ -38,13 +38,13 @@ def download_loan_data():
 
 
 # Function to Process Loan Data with Macroeconomic Features
-def process_loan_data(df,start_year=2018, end_year=2024):
+def process_loan_data(df, start_year=2018, end_year=2024):
     logging.info("Fetching macroeconomic data...")
 
     # Step 1: Fetch macroeconomic data from Yahoo Finance
     tickers = {
         "interest_rate": "^IRX",  # 13-week Treasury Bill Rate
-        "bond_yield": "^TNX",  # 10-Year Treasury Yield
+        "bond_yield": "^TNX",     # 10-Year Treasury Yield
         "market_volatility": "^VIX"  # VIX Index
     }
 
@@ -56,20 +56,34 @@ def process_loan_data(df,start_year=2018, end_year=2024):
         macro_data[key] = hist["Close"].groupby(hist.index).mean()
 
     df_macro = pd.DataFrame(macro_data)
-    df_macro = df_macro.loc[start_year:end_year].reset_index().rename(columns={"Date": "Year"})
+    df_macro = df_macro.loc[start_year:end_year].reset_index().rename(columns={"index": "Year"})
 
     logging.info("Fetching inflation data from FRED API...")
 
-    # Step 2: Fetch inflation data from FRED API
+    # Step 2: Fetch inflation data from FRED API with error handling
     url = f"https://api.stlouisfed.org/fred/series/observations?series_id=CPIAUCSL&api_key={api_key}&file_type=json"
-    response = requests.get(url).json()
+    response = requests.get(url)
+    
+    try:
+        data = response.json()
+    except Exception as e:
+        logging.error(f"Error parsing JSON response from FRED API: {e}")
+        data = {}
 
-    inflation_data = pd.DataFrame(response["observations"])
-    inflation_data["date"] = pd.to_datetime(inflation_data["date"])
-    inflation_data["Year"] = inflation_data["date"].dt.year
-    inflation_data["Inflation"] = inflation_data["value"].astype(float)
-    inflation_data["InflationRate"] = inflation_data["Inflation"].pct_change(12) * 100
-    inflation_data = inflation_data[["Year", "InflationRate"]].dropna().groupby("Year").mean().reset_index()
+    if "observations" in data:
+        inflation_data = pd.DataFrame(data["observations"])
+    else:
+        logging.error(f"'observations' key not found in FRED API response: {data}")
+        inflation_data = pd.DataFrame()
+    
+    if not inflation_data.empty:
+        inflation_data["date"] = pd.to_datetime(inflation_data["date"])
+        inflation_data["Year"] = inflation_data["date"].dt.year
+        inflation_data["Inflation"] = inflation_data["value"].astype(float)
+        inflation_data["InflationRate"] = inflation_data["Inflation"].pct_change(12) * 100
+        inflation_data = inflation_data[["Year", "InflationRate"]].dropna().groupby("Year").mean().reset_index()
+    else:
+        logging.warning("Inflation data is empty. Macro analysis may be incomplete.")
 
     # Merge macroeconomic and inflation data
     merged_data = pd.merge(df_macro, inflation_data, on='Year', how='left')
@@ -87,7 +101,7 @@ def process_loan_data(df,start_year=2018, end_year=2024):
     loan_data["InterestRateSensitivity"] = loan_data["LoanAmount"] * (
                 loan_data["interest_rate"] / loan_data["BaseInterestRate"])
     loan_data["DebtSensitivityRatio"] = loan_data["TotalDebtToIncomeRatio"] * (
-                1 + loan_data["InflationRate"].iloc[0] / 100)
+                1 + loan_data["InflationRate"].iloc[0] / 100 if not loan_data["InflationRate"].empty else 0)
     loan_data["MarketVolatilityImpact"] = loan_data["RiskScore"] * (loan_data["market_volatility"].iloc[0] / 20)
 
     loan_data["InterestImpact"] = loan_data["LoanAmount"] * (loan_data["InterestRate"] / loan_data["interest_rate"])
@@ -97,8 +111,6 @@ def process_loan_data(df,start_year=2018, end_year=2024):
     logging.info(f"the data is {loan_data.head()}")
 
     return loan_data
-
-
 
 
 
