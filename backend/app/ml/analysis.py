@@ -165,16 +165,3 @@ def generate_ai_report(tranche_summary, macro_impact_summary):
         logging.error(f"Error generating AI report: {e}")
         return "AI Report generation failed."
 
-
-# Main Execution Flow
-df = download_loan_data()
-predictions = get_risk_score(MODEL_PKL, df)
-df = get_updated_dataset(df, predictions)
-loan_data = process_loan_data(df)
-selected_loans_per_tranche = allocate_tranches(loan_data, criterion='Liquidity', suboption='High Liquidity',
-                                               investor_budget=20000)
-tranche_summary = summarize_tranche_allocation(selected_loans_per_tranche, "Liquidity", "High Liquidity")
-macro_impact_summary = analyze_macro_impact(selected_loans_per_tranche, loan_data)
-ai_report = generate_ai_report(tranche_summary, macro_impact_summary)
-logging.info(ai_report)
-

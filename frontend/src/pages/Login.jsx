@@ -18,12 +18,16 @@ const Login = () => {
   const validateEmail = (email) => /\S+@\S+\.\S+/.test(email);
   const validatePassword = (password) => password.length >= 6;
 
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateEmail(formData.email)) {
       return Swal.fire("Error", "Invalid email format!", "error");
     }
-    if (!validatePassword(password)) {
+    if (!validatePassword(formData.password)) {
       return Swal.fire(
         "Error",
         "Password must be at least 6 characters!",
@@ -79,7 +83,8 @@ const Login = () => {
               type="email"
               placeholder="Email"
               value={formData.email}
-              onChange={(e) => setEmail(e.target.value)}
+              name="email"
+              onChange={handleChange}
               required
               className="p-3 border border-white"
             />
@@ -87,7 +92,8 @@ const Login = () => {
               type="password"
               placeholder="Password"
               value={formData.password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
+              onChange={handleChange}
               required
               className="p-3 border border-white"
             />

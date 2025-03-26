@@ -4,26 +4,51 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight, Sun, Moon, Star } from "lucide-react";
 import { Link } from "react-router";
 import { pricingPlans, testimonials } from "../constants/config";
+import { useUser } from "@/context/UserContext";
 
 const Homepage = () => {
   const [darkMode, setDarkMode] = useState(true);
+  const { user } = useUser();
 
   return (
-    <div className={`min-h-screen ${darkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'} flex flex-col items-center p-8 transition-all duration-300`}>
+    <div
+      className={`min-h-screen ${
+        darkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+      } flex flex-col items-center p-8 transition-all duration-300`}
+    >
       <div className="absolute top-4 right-4 flex gap-4">
-        <Button onClick={() => setDarkMode(!darkMode)} className="border px-4 py-2 rounded-xl">
-          {darkMode ? <Sun /> : <Moon />}
-        </Button>
-        <Link to="/login">
-          <Button variant="outline" className="border-white text-black dark:text-white px-4 py-2 rounded-xl">
-            Login
-          </Button>
-        </Link>
-        <Link to="/signup">
-          <Button className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-xl">
-            Sign Up
-          </Button>
-        </Link>
+        {user ? (
+          <Link to="/dashboard">
+            <Button
+              variant="outline"
+              className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-xl"
+            >
+              Dashboard
+            </Button>
+          </Link>
+        ) : (
+          <>
+            <Button
+              onClick={() => setDarkMode(!darkMode)}
+              className="border px-4 py-2 rounded-xl"
+            >
+              {darkMode ? <Sun /> : <Moon />}
+            </Button>
+            <Link to="/login">
+              <Button
+                variant="outline"
+                className="border-white text-black dark:text-white px-4 py-2 rounded-xl"
+              >
+                Login
+              </Button>
+            </Link>
+            <Link to="/signup">
+              <Button className="bg-yellow-400 hover:bg-yellow-500 text-black px-4 py-2 rounded-xl">
+                Sign Up
+              </Button>
+            </Link>
+          </>
+        )}
       </div>
 
       <div className="max-w-4xl mt-40 text-center space-y-8">
@@ -31,7 +56,8 @@ const Homepage = () => {
           Welcome to <span className="text-yellow-300">ABSecure</span>
         </h1>
         <p className="text-lg">
-          Empowering investors with insights and risk assessment for Asset-Backed Securities.
+          Empowering investors with insights and risk assessment for
+          Asset-Backed Securities.
         </p>
         <div className="flex justify-center gap-4">
           <Link to="/tranche-input">
@@ -40,7 +66,10 @@ const Homepage = () => {
             </Button>
           </Link>
           <Link to="/tranche">
-            <Button variant="outline" className="border-white text-black dark:text-white px-6 py-3 rounded-2xl">
+            <Button
+              variant="outline"
+              className="border-white text-black dark:text-white px-6 py-3 rounded-2xl"
+            >
               Learn Financial Terms
             </Button>
           </Link>
@@ -50,7 +79,10 @@ const Homepage = () => {
           <h2 className="text-3xl font-bold text-center">Pricing Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10 px-8">
             {pricingPlans.map((plan, idx) => (
-              <Card key={idx} className="p-4 hover:scale-105 transition-transform duration-300">
+              <Card
+                key={idx}
+                className="p-4 hover:scale-105 transition-transform duration-300"
+              >
                 <CardContent>
                   <h3 className="text-xl font-bold">{plan.name} Plan</h3>
                   <p className="text-sm mt-2">{plan.description}</p>
@@ -83,7 +115,8 @@ const Homepage = () => {
         <section className="text-center py-16 mt-16">
           <h2 className="text-3xl font-bold">Get Started Today!</h2>
           <p className="text-lg mt-4">
-            Join ABSecure and take control of your investments with smart tools and insights.
+            Join ABSecure and take control of your investments with smart tools
+            and insights.
           </p>
           <Link to="/signup">
             <Button className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black px-6 py-3 rounded-2xl">
