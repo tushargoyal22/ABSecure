@@ -252,6 +252,51 @@ python backend/seed.py
   - Check that your **MONGO_URI** in `.env` is correct.  
   - Make sure your **IP is whitelisted** in MongoDB Atlas.
 
+
+
+## Macroeconomic Spike Detector  
+
+This detects macroeconomic spikes and sends email alerts when significant changes occur.  
+
+
+## Installation & Setup  
+
+### 1. Create and Activate a Virtual Environment  
+```bash
+python -m venv venv  
+source venv/bin/activate  # For Mac/Linux  
+venv\Scripts\activate      # For Windows  
 ```
+
+### 2. Install Dependencies  
+```bash
+pip install -r requirements.txt  
+```
+
+### 3. Configure Environment Variables  
+Create a `.env` file in the `backend` directory with the following:  
+```ini
+MONGO_URI=mongodb://localhost:27017/your_db  
+SECRET_KEY=your_secret_key  
+SMTP_SENDER=your_email@gmail.com  
+SMTP_RECEIVER=receiver_email@example.com  
+SMTP_APP_PASSWORD=your_app_password  
+SPIKE_THRESHOLD_PERCENT=0.1  
+```
+
+---
+
+## Running the Project  
+
+### 4. Start the FastAPI Backend  
+```bash
+uvicorn app.main:app --reload  
+```
+
+### 5. Trigger CPI Check (Risk Analysis)  
+```bash
+curl -X POST "http://localhost:8000/trigger-cpi-check"  
+```
+> If a spike is detected, an email alert will be sent, and logs will appear in the terminal.
 
 ---
