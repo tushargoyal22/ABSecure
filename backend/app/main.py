@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 import logging
-from app.routes import loan_routes, auth_routes, pool_routes  # Import auth routes
+from app.routes import loan_routes, auth_routes, pool_routes, tranch_routes  # Import auth routes
 from app.config.database import initialize_default_thresholds
 from app.services.celery_worker import check_cpi_spike
 
@@ -27,6 +27,7 @@ def trigger_cpi_check(background_tasks: BackgroundTasks):
 app.include_router(loan_routes.router)
 app.include_router(auth_routes.router, prefix="/auth")  # Include auth routes
 app.include_router(pool_routes.router, prefix="/pool")  
+app.include_router(tranch_routes.router, prefix="/tranch")  
 
 # CORS Configuration (if required)
 from fastapi.middleware.cors import CORSMiddleware

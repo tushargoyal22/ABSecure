@@ -34,7 +34,7 @@ import Swal from "sweetalert2";
 export function NavUser() {
   const { setTheme, theme } = useTheme();
   const { isMobile } = useSidebar();
-  const { user, logoutUser } = useUser(); 
+  const { user, logoutUser } = useUser();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -48,7 +48,9 @@ export function NavUser() {
       confirmButtonText: "Yes, log out!",
     }).then((result) => {
       if (result.isConfirmed) {
-        logoutUser(); 
+        logoutUser();
+        localStorage.removeItem("report");
+        localStorage.removeItem("token");
         navigate("/login");
         Swal.fire("Logged Out", "You have been logged out.", "success");
       }
@@ -80,7 +82,9 @@ export function NavUser() {
             >
               <Avatar className="h-8 w-8 rounded-lg">
                 <AvatarImage src={user.avatar} alt={user.full_name} />
-                <AvatarFallback className="rounded-lg"><User/></AvatarFallback>
+                <AvatarFallback className="rounded-lg">
+                  <User />
+                </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">{user.full_name}</span>
@@ -99,7 +103,9 @@ export function NavUser() {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
                   <AvatarImage src={user.avatar} alt={user.full_name} />
-                  <AvatarFallback className="rounded-lg"><User/></AvatarFallback>
+                  <AvatarFallback className="rounded-lg">
+                    <User />
+                  </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">{user.name}</span>

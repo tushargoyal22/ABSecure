@@ -36,7 +36,7 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
     # Call the pooling and tranche allocation function from the service,
     # passing investor_budget as an additional parameter.
 
-    df = df.drop(columns=["_id", "investor_id", "status", "tranche_type"], errors='ignore')
+    df = df.drop(columns=["investor_id", "status", "tranche_type"], errors='ignore')
 
     predictions = load_ml_risk_scores(df)
     if predictions is None:
@@ -91,6 +91,12 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
 
         loans_allocated = len(df_tranche) if not df_tranche.empty else 0
         budget_spent = float(df_tranche['LoanAmount'].sum()) if not df_tranche.empty and 'LoanAmount' in df_tranche.columns else 0.0
+        loan_ids = [str(oid) for oid in df_tranche['_id'].tolist()] if not df_tranche.empty and '_id' in df_tranche.columns else []
+        
+        if not df_tranche.empty and 'RiskScore' in df_tranche.columns and 'LoanAmount' in df_tranche.columns:
+            weighted_risk = (df_tranche['RiskScore'] * df_tranche['LoanAmount']).sum() / df_tranche['LoanAmount'].sum()
+        else:
+            weighted_risk = None
         info = static_tranche_info[tranche_key]
         tranche_details.append({
             "tranche_name": tranche_key,
@@ -99,7 +105,9 @@ def allocate_tranches_endpoint(criterion: str, suboption: str, investor_budget: 
             "payment_priority": info["Payment Priority"],
             "loans_allocated": loans_allocated,
             "budget_spent": budget_spent,
-            "investor_budget": investor_budget
+            "investor_budget": investor_budget,
+            "loans": loan_ids,
+            "average_risk": weighted_risk
         })
     
     

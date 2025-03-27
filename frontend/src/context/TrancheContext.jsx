@@ -3,9 +3,15 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 export const TrancheContext = createContext();
 
 export const TrancheProvider = ({ children }) => {
-  const [criteria, setCriteria] = useState(() => localStorage.getItem("criteria") || "");
-  const [suboption, setSuboption] = useState(() => localStorage.getItem("suboption") || "");
-  const [budget, setBudget] = useState(() => parseFloat(localStorage.getItem("budget")) || null);
+  const [criteria, setCriteria] = useState(
+    () => localStorage.getItem("criteria") || ""
+  );
+  const [suboption, setSuboption] = useState(
+    () => localStorage.getItem("suboption") || ""
+  );
+  const [budget, setBudget] = useState(
+    () => parseFloat(localStorage.getItem("budget")) || null
+  );
   const [trancheDetails, setTrancheDetails] = useState(() => {
     const storedData = localStorage.getItem("trancheDetails");
     return storedData ? JSON.parse(storedData) : null;
@@ -14,6 +20,11 @@ export const TrancheProvider = ({ children }) => {
     const storedReport = localStorage.getItem("report");
     return storedReport ? JSON.parse(storedReport) : null;
   });
+  const [selectedTranche, setSelectedTranche] = useState(() => {
+    const storedData = localStorage.getItem("selectedTranche");
+    return storedData ? JSON.parse(storedData) : null;
+  });
+  
 
   useEffect(() => {
     localStorage.setItem("criteria", criteria);
@@ -21,7 +32,8 @@ export const TrancheProvider = ({ children }) => {
     localStorage.setItem("budget", budget);
     localStorage.setItem("trancheDetails", JSON.stringify(trancheDetails));
     localStorage.setItem("report", JSON.stringify(report));
-  }, [criteria, suboption, budget, trancheDetails, report]);
+    localStorage.setItem("selectedTranche", JSON.stringify(selectedTranche));
+  }, [criteria, suboption, budget, trancheDetails, report, selectedTranche]);
 
   return (
     <TrancheContext.Provider
@@ -35,7 +47,9 @@ export const TrancheProvider = ({ children }) => {
         trancheDetails,
         setTrancheDetails,
         report,
-        setReport, 
+        setReport,
+        selectedTranche,
+        setSelectedTranche,
       }}
     >
       {children}

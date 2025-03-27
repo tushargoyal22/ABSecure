@@ -47,7 +47,13 @@ const data = {
       url: "/report",
       items: [
         { title: "AI-Generated Report", url: "/report" },
-        // { title: "Investment Suggestions", url: "#" },
+      ],
+    },
+    {
+      title: "Community",
+      url: "/marketplace",
+      items: [
+        { title: "Marketplace", url: "/marketplace" },
       ],
     },
     // {
