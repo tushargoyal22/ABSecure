@@ -50,26 +50,15 @@ const Execution = () => {
           `${API_URL}/tranch/checkout`,
           updatedTrancheDetails
         );
-        
+
         if (response.status === 200) {
           setTransactionStatus("success");
-          Swal.fire({
-            title: "Transaction Successful!",
-            text: "Your investment has been processed.",
-            icon: "success",
-            confirmButtonText: "OK",
-          }).then(() => navigate("/portfolio"));
+          setTimeout(() => {
+            navigate("/portfolio");
+          }, 3000);
         }
       } catch (error) {
         setTransactionStatus("failed");
-        Swal.fire({
-          title: "Transaction Failed!",
-          text:
-            error.response?.data?.detail ||
-            "An error occurred. Please try again.",
-          icon: "error",
-          confirmButtonText: "Retry",
-        });
       }
     };
     executeCheckout();
