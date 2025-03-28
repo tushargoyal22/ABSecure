@@ -7,20 +7,44 @@ import { useTranche } from "@/context/TrancheContext";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
 const ReportViewer = () => {
+  const navigate = useNavigate();
   const { report, setReport, criteria, suboption, budget } = useTranche();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const fetchReport = async () => {
     setLoading(true);
+    const user = localStorage.getItem("user");
+    if (!user) {
+      Swal.fire({
+        toast: true,
+        position: "bottom-end",
+        icon: "error",
+        title: "Unauthorized",
+        text: "You must be logged in to generate a report.",
+        showConfirmButton: false,
+        timer: 5000,
+        timerProgressBar: true,
+      });
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await axios.get(
         `${API_URL}/pool/generate_report?criterion=${criteria}&suboption=${suboption}&investor_budget=${budget}`,
-        { timeout: 60000 }
+        {
+          timeout: 60000,
+        }
       );
       const parsedReport = parseReport(response.data.report);
       setReport(parsedReport);
@@ -238,16 +262,19 @@ const ReportViewer = () => {
                         <th className="border p-2">Tranche Type</th>
                         <th className="border p-2">Number of Loans</th>
                         <th className="border p-2">Total Amount</th>
+                        <th className="border p-2">Average Risk Score</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {report.macroeconomicImpact
+                      {report.trancheAllocation
                         .split("\n")
                         .map((row) => row.trim())
                         .filter((row) => row && row.includes("|"))
                         .slice(1)
                         .filter(
-                          (row) => !/^-+$/.test(row.replace(/\|/g, "").trim())
+                          (row) =>
+                            !/^-+$/.test(row.replace(/\|/g, "").trim()) &&
+                            !row.toLowerCase().includes("total")
                         )
                         .map((row, index) => {
                           const cells = row

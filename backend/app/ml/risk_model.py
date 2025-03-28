@@ -12,9 +12,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 
 MODEL_FILE = "loan_risk_model.pkl"
 
-def setup_logging():
-    logging.basicConfig(stream=sys.stdout)
-    #logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def load_data(data_path, file_name):
     try:
@@ -163,20 +161,3 @@ def load_ml_risk_scores(df: pd.DataFrame):
         logging.error("Risk score predictions returned None")
 
     return predictions
-
-sample_input = load_data("lorenzozoppelletto/financial-risk-for-loan-approval","Loan.csv")
-model_pkl="loan_risk_model.pkl"
-
-"""if not os.path.exists(model_pkl):
-    train_model(sample_input)
-    #model=load_model(model_pkl)"""
-
-if sample_input is not None:
-
-
-    """predictions=get_risk_score(model_pkl, sample_input)
-    print(predictions)
-    updated_dataset = get_updated_dataset(sample_input, predictions)
-    print(updated_dataset.head())"""
-    pred = load_ml_risk_scores(sample_input)
-    logging.info(pred)

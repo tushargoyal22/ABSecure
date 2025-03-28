@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import { ThemeProvider } from "./components/ui/theme-provider";
 import VerifyEmail from "./pages/VerifyMail";
+import Execution from "./pages/BuyingExecution";
+import TrancheMarketplace from "./pages/TrancheMarketplace";
 
 function App() {
   return (
@@ -29,7 +31,9 @@ function App() {
                 <Route path="tranche" element={<Tranche />} />
                 <Route path="tranche-input" element={<TrancheInput />} />
                 <Route path="tranche-result" element={<TrancheResult />} />
+                <Route path="checkout" element={<Execution />} />
                 <Route path="report" element={<ReportViewer />} />
+                <Route path="marketplace" element={<TrancheMarketplace />} />
               </Routes>
             </Layout>
           }

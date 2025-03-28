@@ -147,10 +147,3 @@ def initialize_default_thresholds():
         logger.info("Default thresholds inserted into the database.")
     else:
         logger.info("Default thresholds already exist.")
-"""
-# Changes Implemented after 1st review:
-1. **Added validation for `MONGO_URI`** to ensure it is properly set, improving configurability.
-2. **Replaced print statements with structured logging** for better debugging and monitoring.
-3. **Sanitized logging messages** to prevent exposure of sensitive information.
-4. **Removed redundant `client.server_info()` call** to avoid unnecessary network overhead.
-"""
