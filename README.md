@@ -263,6 +263,7 @@ This detects macroeconomic spikes and sends email alerts when significant change
 
 ### 1. Create and Activate a Virtual Environment  
 ```bash
+cd backend
 python -m venv venv  
 source venv/bin/activate  # For Mac/Linux  
 venv\Scripts\activate      # For Windows  
@@ -293,7 +294,17 @@ SPIKE_THRESHOLD_PERCENT=0.1
 uvicorn app.main:app --reload  
 ```
 
-### 5. Trigger CPI Check (Risk Analysis)  
+### 5. Start Celery Workers
+```bash
+celery -A app.services.celery_worker worker --loglevel=info
+
+```
+### 6. Start Celery Beat for Periodic Tasks
+```bash
+celery -A app.services.celery_worker beat --loglevel=info
+
+```
+### 7. Trigger CPI Check (Risk Analysis)  
 ```bash
 curl -X POST "http://localhost:8000/trigger-cpi-check"  
 ```
