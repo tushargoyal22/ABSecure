@@ -56,14 +56,12 @@ const data = {
         { title: "Marketplace", url: "/marketplace" },
       ],
     },
-    // {
-    //   title: "User Profile & Settings",
-    //   url: "/profile",
-    //   items: [
-    //     { title: "Profile Details", url: "#" },
-    //     { title: "Notification Settings", url: "#" },
-    //   ],
-    // },
+    {
+      title: "User Profile",
+      items: [
+        { title: "Investor Dashboard", url: "/dashboard" },
+      ],
+    },
   ],
 };
 

@@ -2,6 +2,7 @@
 from fastapi import APIRouter, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pymongo.errors import DuplicateKeyError
+from bson import ObjectId
 import logging
 from app.models.user import User
 from app.config.database import get_database
@@ -89,13 +90,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
     # Generate an access token upon successful authentication
     access_token = create_access_token(data={"sub": user["email"]})
+    tranches = [str(t) for t in user.get("tranches", []) if isinstance(t, ObjectId)]
     return {
         "id": str(user["_id"]),
         "access_token": access_token,
         "token_type": "bearer",
         "full_name": user["full_name"],
         "email": user["email"],
-        "tranches": user.get("tranches", [])
+        "tranches": tranches
     }
 
 
