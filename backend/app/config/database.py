@@ -1,3 +1,9 @@
+"""Database Configuration Module for Loan Management System.
+
+This module handles MongoDB database connectivity and threshold configuration management.
+It implements a singleton pattern for database connections and provides default threshold values.
+"""
+
 import os
 import logging
 from pymongo import MongoClient
@@ -21,15 +27,20 @@ if not MONGO_URI:
 # Log in a safe way to avoid exposing sensitive information
 logger.debug("MongoDB URI loaded successfully (sanitized).")
 
-#CHANGE 1: Introduced a singleton pattern for MongoDB client  
-# This ensures that only one MongoClient instance is used throughout the application  
+# Singleton MongoDB client instance
 _client = None  # Global variable to hold the MongoDB client instance
 
 def get_database():
-    """
-    Returns a **singleton MongoDB client instance**.
-    - Prevents creating a new connection on every function call.
-    - Ensures efficient resource utilization.
+    """Get a singleton MongoDB database connection instance.
+    
+    Returns:
+        Database: The MongoDB database instance named 'loan_database'.
+        
+    Raises:
+        Exception: If connection to MongoDB fails.
+        
+    Note:
+        Uses singleton pattern to maintain single connection throughout application.
     """
     global _client  # Use the global `_client` variable
 
@@ -139,8 +150,10 @@ DEFAULT_THRESHOLDS = {
 }
 
 def initialize_default_thresholds():
-    """
-    Inserts the default thresholds document into the database if it doesn't exist.
+    """Initialize the database with default threshold values if they don't exist.
+    
+    Note:
+        Checks if thresholds document exists before inserting to prevent duplicates.
     """
     if threshold_collection.find_one({"_id": "threshold_values"}) is None:
         threshold_collection.insert_one(DEFAULT_THRESHOLDS)

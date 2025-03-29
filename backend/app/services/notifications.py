@@ -1,3 +1,10 @@
+"""Macroeconomic Alert System for CPI Monitoring.
+
+This module provides functionality to monitor Consumer Price Index (CPI) data,
+detect significant spikes, and send email alerts when thresholds are exceeded.
+It integrates with Alpha Vantage API for data and SMTP for notifications.
+"""
+
 import requests
 import smtplib
 from email.mime.text import MIMEText
@@ -16,7 +23,13 @@ SMTP_RECEIVER = os.getenv("SMTP_RECEIVER", "receiver_email@example.com")
 SMTP_APP_PASSWORD = os.getenv("SMTP_APP_PASSWORD", "your_app_password")
 SPIKE_THRESHOLD_PERCENT = float(os.getenv("SPIKE_THRESHOLD_PERCENT", "0.1"))
 
-def fetch_cpi_data():
+def fetch_cpi_data() -> list:
+    """Fetch CPI data from Alpha Vantage API.
+
+    Returns:
+        list: List of dictionaries containing CPI data points (date and value)
+              Returns empty list on error.
+    """
     url = f"https://www.alphavantage.co/query?function=CPI&interval=monthly&apikey={ALPHAVANTAGE_API_KEY}"
 
     session = requests.Session()
@@ -32,11 +45,16 @@ def fetch_cpi_data():
         print(f"Error fetching CPI data: {e}")
         return []
 
-def detect_cpi_spike(cpi_data, threshold_percent=SPIKE_THRESHOLD_PERCENT):
-    """
-    Converts CPI data (list of dicts) to a DataFrame, sorts it by date,
-    and checks if the percentage change between the latest and previous values exceeds the threshold.
-    Returns (spike_detected, latest_value, previous_value, percentage_change).
+def detect_cpi_spike(cpi_data: list, threshold_percent: float = SPIKE_THRESHOLD_PERCENT) -> tuple:
+    """Analyze CPI data for significant spikes.
+
+    Args:
+        cpi_data: List of CPI data points (dicts with 'date' and 'value')
+        threshold_percent: Percentage change threshold to consider a spike
+
+    Returns:
+        tuple: (spike_detected: bool, latest_value: float, 
+                previous_value: float, percentage_change: float)
     """
     if not cpi_data or len(cpi_data) < 2:
         return False, None, None, None
@@ -56,9 +74,12 @@ def detect_cpi_spike(cpi_data, threshold_percent=SPIKE_THRESHOLD_PERCENT):
     spike_detected = percentage_change > threshold_percent
     return spike_detected, latest_value, previous_value, percentage_change
 
-def send_email_notification(subject, body):
-    """
-    Sends an email notification using SMTP.
+def send_email_notification(subject: str, body: str) -> None:
+    """Send email notification via SMTP.
+
+    Args:
+        subject: Email subject line
+        body: Email message content
     """
     msg = MIMEText(body)
     msg["Subject"] = subject
@@ -74,10 +95,14 @@ def send_email_notification(subject, body):
     except Exception as e:
         print("Failed to send email:", e)
 
-def process_macro_alert():
-    """
-    Main function: fetches CPI data, detects a spike, and sends an email alert if a spike is detected.
-    Returns a status string.
+def process_macro_alert() -> str:
+    """Orchestrate the complete CPI monitoring workflow.
+
+    Returns:
+        str: Status message indicating:
+             - "No data" if API call failed
+             - "Spike detected and email sent" if alert triggered
+             - "No spike detected" otherwise
     """
     cpi_data = fetch_cpi_data()
     if not cpi_data:

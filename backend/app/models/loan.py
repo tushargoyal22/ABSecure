@@ -1,20 +1,45 @@
+"""Loan Data Models for Loan Management System.
+
+This module contains Pydantic models for loan data validation and serialization,
+including database storage format (Loan) and API input validation (LoanInput).
+"""
+
 from pydantic import BaseModel, Field
 from typing import Optional
 from bson import ObjectId
 
 class PyObjectId(str):
+    """Custom type for MongoDB ObjectId handling.
+    
+    Provides validation and conversion between ObjectId and string representations.
+    """
     @classmethod
     def __get_validators__(cls):
+        """Yield validator methods for Pydantic model processing."""
         yield cls.validate
 
     @classmethod
     def validate(cls, v):
+        """Validate and convert ObjectId to string.
+        
+        Args:
+            v: Input value to validate
+            
+        Returns:
+            str: String representation of valid ObjectId
+            
+        Raises:
+            ValueError: If input is not a valid ObjectId
+        """
         if not ObjectId.is_valid(v):
             raise ValueError("Invalid ObjectId")
         return str(v)  # Convert ObjectId to string for JSON response
 
-#Loan model (used for database storage)
 class Loan(BaseModel):
+    """Primary loan data model for database storage and full loan representation.
+    
+    Contains all loan attributes including required fields and optional analytics fields.
+    """
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     ApplicationDate: str
     Age: int
@@ -56,6 +81,7 @@ class Loan(BaseModel):
     LoanApproved: Optional[int] = None
 
     class Config:
+        """Pydantic model configuration."""
         json_schema_extra = {
             "example": {
                 "_id": "65ff3d7f36e9f8a7a2d3a1b1",  # Example ObjectId
@@ -83,8 +109,11 @@ class Loan(BaseModel):
             }
         }
 
-# LoanInput model (used for request validation)
 class LoanInput(BaseModel):
+    """Loan input model for API request validation.
+    
+    Contains only required fields for loan application submission.
+    """
     ApplicationDate: str
     Age: int
     AnnualIncome: int
@@ -106,6 +135,7 @@ class LoanInput(BaseModel):
     EmploymentStatus: str  
 
     class Config:
+        """Pydantic model configuration."""
         json_schema_extra = {
             "example": {
                 "ApplicationDate": "2025-02-17",
@@ -126,6 +156,6 @@ class LoanInput(BaseModel):
                 "NumberOfDependents": 1,
                 "PreviousLoanDefaults": 0,
                 "BankruptcyHistory": 0,
-                "EmploymentStatus": "Employed"  # Required field now included in the example
+                "EmploymentStatus": "Employed"
             }
         }
