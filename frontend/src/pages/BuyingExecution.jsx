@@ -54,7 +54,7 @@ const Execution = () => {
         if (response.status === 200) {
           setTransactionStatus("success");
           setTimeout(() => {
-            navigate("/portfolio");
+            navigate("/dashboard");
           }, 3000);
         }
       } catch (error) {
@@ -62,7 +62,7 @@ const Execution = () => {
       }
     };
     executeCheckout();
-  }, []);
+  }, [user]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6">

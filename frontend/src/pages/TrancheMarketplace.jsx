@@ -63,7 +63,7 @@ const TrancheMarketplace = () => {
           text: "Your investment has been processed.",
           icon: "success",
           confirmButtonText: "OK",
-        }).then(() => navigate("/portfolio"));
+        }).then(() => navigate("/dashboard"));
 
         setTranches(tranches.filter((t) => t._id !== tranche._id));
         setFilteredTranches(

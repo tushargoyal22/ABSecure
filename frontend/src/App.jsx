@@ -34,6 +34,7 @@ function App() {
                 <Route path="checkout" element={<Execution />} />
                 <Route path="report" element={<ReportViewer />} />
                 <Route path="marketplace" element={<TrancheMarketplace />} />
+                <Route path="dashboard" element={<Dashboard />} />
               </Routes>
             </Layout>
           }
