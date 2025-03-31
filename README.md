@@ -1,9 +1,11 @@
 # ABSecure: Smart ABS Management
 
 ## Project Description
+
 ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that helps financial institutions **bundle loans into ABS**, predict their performance, and facilitate trading. The system utilizes **AI** to assess loan risks, optimize securitization, and enable a **secondary market** for trading ABS.
 
 ## Key Features
+
 - **Loan Pool Formation** – Group loans based on risk profiles.
 - **Tranche Creation** – Split loan pools into **Senior, Mezzanine, and Equity** tranches.
 - **Generative AI-Based Risk Analysis** – AI-generated reports for loan risk assessment.
@@ -13,6 +15,7 @@ ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that hel
 - **Audit & Compliance** – Secure tracking of all transactions.
 
 ## Tech Stack
+
 - **Backend:** FastAPI (Python)
 - **Database:** MongoDB
 - **Frontend:** React.js / Vue.js
@@ -21,6 +24,7 @@ ABSecure is a **Smart Asset-Backed Securities (ABS) Management System** that hel
 - **Version Control:** GitHub
 
 ## Project Structure
+
 ```
 ABSecure/
 │── backend
@@ -48,13 +52,13 @@ ABSecure/
 │   │── requirements.txt  # Dependencies
 │   │── .env  # Environment variables (MongoDB URI)
 │   |── .gitignore  # Ignore unnecessary files
-│   │   
+│   │
 │   │
 │── frontend/
 │   ├── src/
 │   │   ├── components/  # Reusable UI components
 │   │   ├── pages/  # Core pages and views
-│   │   ├── context/ # Global state management using React Context API 
+│   │   ├── context/ # Global state management using React Context API
 │   │   ├── hooks/ # Custom React hooks
 │   │   ├── lib/ # Utility functions and helpers
 │   │   ├── App.js  # Root component
@@ -71,18 +75,32 @@ ABSecure/
 |   |__ .gitignore # Ignore unnecessary files
 
 ```
+
 ## Dataset Details
+
 The ABSecure system leverages the [Financial Risk for Loan Approval](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval) dataset from Kaggle. This dataset provides a rich set of financial, credit, and demographic details on loan applicants and is crucial for:
 
 - **Assessing Loan Risk:**  
   Predicting a **RiskScore** for each loan using a machine learning (Random Forest) model that integrates multiple financial metrics and is used in tranching of loans.
+  Risk scores are calculated using a proper ML algorithm with flo as:-
+  <p> 
+    <img src="assets/Risk score pipeline.png" alt="Database design" height="382px" width="387">
+  </p>
+
 - **Loan Pooling & Tranche Allocation:**  
-  Grouping loans based on dynamic criteria chosen by the user—such as duration, creditworthiness, liquidity, and debt metrics—to create investment tranches.  
-  *For example:*  
-  - **Pooling by Duration:** If a user selects the pooling option **Duration** with the suboption **Short-Term**, the system filters the dataset to include only loans with a duration of 12 months or less.  
+   Grouping loans based on dynamic criteria chosen by the user—such as duration, creditworthiness, liquidity, and debt metrics—to create investment tranches.  
+   _For example:_
+
+  - **Pooling by Duration:** If a user selects the pooling option **Duration** with the suboption **Short-Term**, the system filters the dataset to include only loans with a duration of 12 months or less.
   - **Pooling by Creditworthiness:** If a user opts for pooling by **Creditworthiness** with the suboption **Excellent**, then only loans that satisfy the defined excellent criteria (e.g., meeting specified thresholds for CreditScore, LengthOfCreditHistory, and other relevant metrics) are grouped together.
 
+  A flow diagram showing tranche allocation and loan pooling pipeline:-
+  <p> 
+    <img src="assets/Pooling pipeline.png" alt="Database design" height="282px" width="637">
+  </p>
+
 ### Key Attributes
+
 - **Applicant Info:**  
   • ApplicationDate, Age, EmploymentStatus, EducationLevel, Experience, MaritalStatus, NumberOfDependents
 
@@ -103,6 +121,7 @@ This dataset underpins our machine learning model, which calculates a RiskScore 
 ## Getting Started
 
 ### Prerequisites
+
 - Python 3.8+
 - Node.js 16+
 - MongoDB (local or cloud instance)
@@ -110,16 +129,17 @@ This dataset underpins our machine learning model, which calculates a RiskScore 
 
 ### Backend Setup
 
-
-### **📌 Setup Instructions for ABSecure Backend**  
+### **📌 Setup Instructions for ABSecure Backend**
 
 #### **1️⃣ Clone the Repository**
+
 ```bash
 git clone https://github.com/tushargoyal22/ABSecure.git
 cd ABSecure
 ```
 
 #### **2️⃣ Create a Virtual Environment (Recommended)**
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # For macOS/Linux
@@ -127,26 +147,33 @@ venv\Scripts\activate  # For Windows
 ```
 
 #### **3️⃣ Install Dependencies**
+
 ```bash
 pip install -r backend/requirements.txt
 ```
 
 #### **4️⃣ Install FastAPI and Uvicorn**
+
 If not already included in `requirements.txt`, install them manually:
+
 ```bash
 pip install fastapi uvicorn
 ```
 
 #### **5️⃣ Set Up Environment Variables**
+
 Create a `.env` file in the `backend/config` directory and add:
+
 ```bash
 MONGO_URI="your_mongodb_connection_string"
 ```
 
 #### **6️⃣ Run the FastAPI Backend**
+
 ```bash
 uvicorn backend.main:app --reload
 ```
+
 - This starts the FastAPI server on `http://127.0.0.1:8000`
 - You can access API docs at `http://127.0.0.1:8000/docs`
 
@@ -154,45 +181,60 @@ uvicorn backend.main:app --reload
 
 ### 📌 Frontend Setup
 
-#### 1️⃣  Navigate to the Frontend Directory
+#### 1️⃣ Navigate to the Frontend Directory
+
 Ensure you're inside the project root folder. Then, navigate to the frontend directory:
+
 ```bash
 cd frontend
 ```
 
 #### 2️⃣ Install Dependencies
+
 Run the following command to install all necessary dependencies listed in `package.json`:
+
 ```bash
 npm install
 ```
 
 #### 3️⃣ Set Up Environment Variables
+
 Copy the provided `.env.example` file and rename it as .env to configure your environment variables:
+
 ```bash
 cp .env.example .env
 ```
 
-#### 4️⃣ Run the Frontend in Development Mode 
+#### 4️⃣ Run the Frontend in Development Mode
 
 ```bash
 npm run dev
 ```
+
 - This will launch the Vite development server.
 - By default, the app will be available at `http://localhost:5173/` .
 
 ### **📌 Database Setup**
+
 Ensure MongoDB is running and update the connection string in `backend/main.py`.
 
+The database is designed to manage investors, tranches, and loan data in the ABSecure platform :
+
+<p> 
+  <img src="assets/Database.png" alt="Database design" height="282px" width="637">
+</p>
+
 ### **📌 Running the Project**
-- Start the **backend**:  
+
+- Start the **backend**:
   ```bash
   uvicorn backend.main:app --reload
   ```
-- Start the **frontend**:  
+- Start the **frontend**:
   ```bash
   npm run dev
   ```
-  
+
 # MongoDB Seeding Script (`seed.py`)
 
 The `seed.py` script populates the database by importing financial loan data from a JSON file into MongoDB.
@@ -200,7 +242,8 @@ The `seed.py` script populates the database by importing financial loan data fro
 ## Prerequisites
 
 Before running the script, ensure you have:
-- **Python 3.x** installed  
+
+- **Python 3.x** installed
 - Required dependencies (install using):
   ```bash
   pip install -r requirements.txt
@@ -208,106 +251,135 @@ Before running the script, ensure you have:
 
 ## Requirements
 
-- A running **MongoDB Atlas or Local MongoDB instance**  
-- A valid **JSON file** containing loan data  
+- A running **MongoDB Atlas or Local MongoDB instance**
+- A valid **JSON file** containing loan data
 
-## 1️⃣ Dataset Setup  
+## 1️⃣ Dataset Setup
 
-The loan dataset is required. You can download the original CSV from Kaggle:  
+The loan dataset is required. You can download the original CSV from Kaggle:
 
-🔗 **[Financial Risk for Loan Approval Dataset](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval)**  
+🔗 **[Financial Risk for Loan Approval Dataset](https://www.kaggle.com/datasets/lorenzozoppelletto/financial-risk-for-loan-approval)**
 
-If you haven't already, convert the CSV to JSON manually and store it as:  
+If you haven't already, convert the CSV to JSON manually and store it as:
 
 ```
 data/financial_risk_data.json
 ```
 
-## 2️⃣ Configuration  
+## 2️⃣ Configuration
 
-Set up environment variables in `.env` before running the script:  
+Set up environment variables in `.env` before running the script:
 
-```ini
+````ini
 MONGO_URI=your_mongodb_connection_string
 JSON_FILE_PATH=data/financial_risk_data.json
 
 
-## 3️⃣ Running the Script  
+## 3️⃣ Running the Script
 
 Execute the script using:
 
 ```bash
 python backend/seed.py
-```
+````
 
-### What the Script Does  
-- Loads loan data from the JSON file  
-- Inserts **only new** records into MongoDB (avoiding duplicates)  
-- Prints a **sample of 5 records** from the database for testing  
+### What the Script Does
 
-## 4️⃣ Troubleshooting  
+- Loads loan data from the JSON file
+- Inserts **only new** records into MongoDB (avoiding duplicates)
+- Prints a **sample of 5 records** from the database for testing
 
-- **MongoDB connection issues?**  
-  - Ensure your **MongoDB Atlas cluster** is active.  
-  - Check that your **MONGO_URI** in `.env` is correct.  
+## 4️⃣ Troubleshooting
+
+- **MongoDB connection issues?**
+  - Ensure your **MongoDB Atlas cluster** is active.
+  - Check that your **MONGO_URI** in `.env` is correct.
   - Make sure your **IP is whitelisted** in MongoDB Atlas.
 
+## Macroeconomic Spike Detector
 
+This detects macroeconomic spikes and sends email alerts when significant changes occur.
 
-## Macroeconomic Spike Detector  
+## Installation & Setup
 
-This detects macroeconomic spikes and sends email alerts when significant changes occur.  
+### 1. Create and Activate a Virtual Environment
 
-
-## Installation & Setup  
-
-### 1. Create and Activate a Virtual Environment  
 ```bash
 cd backend
-python -m venv venv  
-source venv/bin/activate  # For Mac/Linux  
-venv\Scripts\activate      # For Windows  
+python -m venv venv
+source venv/bin/activate  # For Mac/Linux
+venv\Scripts\activate      # For Windows
 ```
 
-### 2. Install Dependencies  
+### 2. Install Dependencies
+
 ```bash
-pip install -r requirements.txt  
+pip install -r requirements.txt
 ```
 
-### 3. Configure Environment Variables  
-Create a `.env` file in the `backend` directory with the following:  
+### 3. Configure Environment Variables
+
+Create a `.env` file in the `backend` directory with the following:
+
 ```ini
-MONGO_URI=mongodb://localhost:27017/your_db  
-SECRET_KEY=your_secret_key  
-SMTP_SENDER=your_email@gmail.com  
-SMTP_RECEIVER=receiver_email@example.com  
-SMTP_APP_PASSWORD=your_app_password  
-SPIKE_THRESHOLD_PERCENT=0.1  
+MONGO_URI=mongodb://localhost:27017/your_db
+SECRET_KEY=your_secret_key
+SMTP_SENDER=your_email@gmail.com
+SMTP_RECEIVER=receiver_email@example.com
+SMTP_APP_PASSWORD=your_app_password
+SPIKE_THRESHOLD_PERCENT=0.1
 ```
 
 ---
 
-## Running the Project  
+## Running the Project
 
-### 4. Start the FastAPI Backend  
+### 4. Start the FastAPI Backend
+
 ```bash
-uvicorn app.main:app --reload  
+uvicorn app.main:app --reload
 ```
 
 ### 5. Start Celery Workers
+
 ```bash
 celery -A app.services.celery_worker worker --loglevel=info
 
 ```
+
 ### 6. Start Celery Beat for Periodic Tasks
+
 ```bash
 celery -A app.services.celery_worker beat --loglevel=info
 
 ```
-### 7. Trigger CPI Check (Risk Analysis)  
+
+### 7. Trigger CPI Check (Risk Analysis)
+
 ```bash
-curl -X POST "http://localhost:8000/trigger-cpi-check"  
+curl -X POST "http://localhost:8000/trigger-cpi-check"
 ```
+
 > If a spike is detected, an email alert will be sent, and logs will appear in the terminal.
 
 ---
+
+## Flow diagrams to understand the project
+
+Tranche data is aggregated to generate an AI-powered securitization report, guiding investors on risk metrics. The backend pipeline for same:
+
+<p> 
+  <img src="assets/Securitization report.png" alt="Database design" height="282px" width="687">
+</p>
+
+The user authentication flow illustrates the authentication process:
+
+<p> 
+  <img src="assets/User authentication.png" alt="Database design" height="282px" width="687">
+</p>
+
+The user flow illustrates the key interactions with ABSecure’s functionalities:
+
+<p> 
+  <img src="assets/User flow.png" alt="Database design" height="282px" width="687">
+</p>
